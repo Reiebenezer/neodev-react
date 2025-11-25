@@ -1,7 +1,6 @@
 import { XIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 import { createContext, useState, type ReactNode } from "react";
-import noiseFilter from '~/assets/filters/noise.svg?url';
 
 interface ModalAttributes {
   open(content: ReactNode | ((close: () => void) => ReactNode)): void;
@@ -28,7 +27,7 @@ export default function ModalContextProvider({ children }: { children: ReactNode
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { when: 'afterChildren', duration: 0.2 } }}
-            className={`fixed inset-0 size-full z-9999 grid place-items-center bg-black/50 bg-[url(${noiseFilter})] backdrop-blur-md`} key={`modal-${i}`}>
+            className={`fixed inset-0 size-full z-9999 grid place-items-center bg-black/50 backdrop-blur-md`} key={`modal-${i}`}>
 
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}

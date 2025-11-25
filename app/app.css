@@ -1,29 +1,34 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans:
+    'Inter Variable', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
   --color-light: var(--color-gray-100);
-  --color-dark:  var(--color-gray-950);
+  --color-dark: var(--color-gray-950);
 
   --color-accent-light: var(--color-gray-200);
   --color-accent-dark: var(--color-gray-900);
-  
+
   --color-text: light-dark(var(--color-dark), var(--color-light));
   --color-bg: light-dark(var(--color-light), var(--color-dark));
-  
-  --color-accent: light-dark(var(--color-accent-light), var(--color-accent-dark));
+
+  --color-accent: light-dark(
+    var(--color-accent-light),
+    var(--color-accent-dark)
+  );
   --color-primary: light-dark(var(--color-gray-400), var(--color-gray-800));
 }
 
 html,
 body {
-  @apply bg-bg;
+  min-height: 100vh;
+  @apply bg-radial-[at_50%_75%] from-accent/30 to-bg;
+  color-scheme: dark;
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+  /* @media (prefers-color-scheme: dark) {
+  } */
 }
 
 @layer base {
@@ -31,7 +36,16 @@ body {
     @apply flex items-center rounded-md p-3 bg-accent cursor-pointer;
   }
 
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     @apply p-2 border border-primary rounded-md resize-y;
   }
+}
+
+@utility bg-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, color-mix(in oklch, var(--color-gray-900) 50%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--color-gray-900) 50%, transparent) 1px, transparent 1px);
 }

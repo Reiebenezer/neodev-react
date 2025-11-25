@@ -264,7 +264,13 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
         doubleClick={{ disabled: true }}
       >
         {(utils) => (
-          <div className={`fixed inset-0 ${currentTool === 'hand' ? 'cursor-move' : 'cursor-default'}`}>
+          <div 
+            className={`fixed inset-0 ${currentTool === 'hand' ? 'cursor-move' : 'cursor-default'} bg-grid`} 
+            style={{ 
+              backgroundPositionX: utils.instance.transformState.positionX,
+              backgroundPositionY: utils.instance.transformState.positionY,
+            }}
+          >
             <DndContext
               sensors={sensors}
               onDragStart={handleDragStart}
