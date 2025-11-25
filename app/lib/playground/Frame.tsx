@@ -1,6 +1,6 @@
 import Vector from '@reiebenezer/ts-utils/vector';
 import type { BlockData, FrameData } from "./context/types";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { PlaygroundContext } from "./context";
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import SortableBlock from './SortableBlock';
@@ -21,6 +21,13 @@ export default function Frame(data: FrameData) {
   const { blocks, id, position } = data;
   const [pos, setPos] = useState(data.position);
 
+  const updateGlobalPosition = useEffectEvent(() => {
+    context?.updateFrame(id, prev => ({
+      ...prev,
+      position: pos
+    }));
+  });
+
   useEffect(() => {
     if (!ref.current) return;
     if (!context) return;
@@ -38,12 +45,7 @@ export default function Frame(data: FrameData) {
           setPos(prev => prev.add(Vector.from(e.dx / context.scale, e.dy / context.scale)));
         },
 
-        end() {
-          context.updateFrame(id, prev => ({
-            ...prev,
-            position: pos
-          }));
-        }
+        end: updateGlobalPosition
       }
     }).on('tap', (e: Interact.PointerEvent) => {
       if (isTemplateFrame(data)) return;

@@ -81,7 +81,7 @@ const templateFrames: PlaygroundContextProps['frames'] = [
         },
       }),
     ],
-    Vector.from(20, 20),
+    Vector.from(20, 80),
     'Template Frame'
   ),
 
@@ -99,7 +99,7 @@ const templateFrames: PlaygroundContextProps['frames'] = [
         },
       }),
     ],
-    Vector.from(350, 20),
+    Vector.from(350, 80),
     'Main'
   ),
 ];

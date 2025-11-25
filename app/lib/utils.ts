@@ -1,9 +1,12 @@
-const keys: Record<string, number> = {};
+const keys: Record<string, string[]> = {};
 
 export function uniqueKeyedString(prefix = 'key') {
-  const val = prefix in keys ? ++keys[prefix] : 1;
+  let val = Math.random().toString().substring(2, 10);
 
-  keys[prefix] = val;
+  while (prefix in keys && keys[prefix].includes(val)) {
+    val = Math.random().toString().substring(2, 10);
+  }
+
   return `${prefix}${val}`;
 }
 

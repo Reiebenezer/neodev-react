@@ -13,17 +13,26 @@ import Preview from "./panels/Preview";
 import templateFrames from "./template";
 import Properties from "./panels/Properties";
 import InputLogger from "./InputLogger";
-import { FRAME_DATA, PREVIEW_FRAME_KEY } from "../constants";
+import { CANVAS_OFFSET, FRAME_DATA, MAX_ZOOM, MIN_ZOOM, PREVIEW_FRAME_KEY, ZOOM_KEY } from "../constants";
+import { Unit } from "@reiebenezer/ts-utils/unit";
+import { Link } from "react-router";
 
 export default function PlaygroundContextProvider({ children }: { children: (frames: PlaygroundContextProps['frames']) => React.ReactNode }) {
-  const [frames, setFrames] = useState(templateFrames);
+  const [frames, setFrames] = useState<FrameData[]>((JSON.parse(localStorage.getItem(FRAME_DATA) ?? "null"))?.map((f: FrameData & { position: [string, string] }) => ({ ...f, position: Vector(Unit(f.position[0]), Unit(f.position[1])) })) ?? templateFrames);
   const [activeBlock, setActiveBlock] = useState<BlockData>();
   const [activeBlockIndex, setActiveBlockIndex] = useState(-1);
   const [currentTool, setCurrentTool] = useState<Tool>('move');
 
   // Pan and zoom
-  const [scale, setScale] = useState(1);
-  const [canvasOffset, setCanvasOffset] = useState(Vector.ZERO);
+  const [scale, setScale] = useState(parseFloat(localStorage.getItem(ZOOM_KEY) ?? '1'));
+  const [canvasOffset, setCanvasOffset] = useState(() => {
+    if (CANVAS_OFFSET in localStorage) {
+      const [x, y] = JSON.parse(localStorage.getItem(CANVAS_OFFSET) ?? '[0px, 0px]') as [string, string];
+      return Vector(Unit(x), Unit(y));
+    }
+
+    return Vector.ZERO;
+  });
 
   // Selection for properties
   const [selectedBlock, setSelectedBlock] = useState<BlockData>();
@@ -140,7 +149,7 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
       // If the source is not the template frame, remove the block from this frame
       updateFrame(sourceFrame.id, prev => ({ ...prev, blocks: prev.blocks.filter(b => b.id !== activeBlock.id) }));
 
-      if (isActiveTemplateBlock && isTemplateFrame(sourceFrame)) {
+      if (isActiveTemplateBlock && !isTemplateFrame(sourceFrame)) {
         updateFrame('template', prev => ({ ...prev, blocks: prev.blocks.toSpliced(activeBlockIndex, 0, activeBlock) }))
       }
 
@@ -156,7 +165,7 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
 
       return resetActiveBlock();
     }
-    
+
     // Move the array to the new index
     const destBlockIndex = sourceFrame.blocks.findIndex(b => b.id === over.id);
 
@@ -204,19 +213,29 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
           removedFrames.push(f);
           return false;
         }
-        
+
         return true;
       }));
 
       for (const { id } of removedFrames) {
         console.log(id);
-        setFrames(frames => frames.map(f => ({ ...f, blocks: f.blocks.filter(b => !isFrameInstanceBlock(b) || b.properties?.referencedFrame !== id)})));
+        setFrames(frames => frames.map(f => ({ ...f, blocks: f.blocks.filter(b => !isFrameInstanceBlock(b) || b.properties?.referencedFrame !== id) })));
       }
     }
 
     // Update localStorage
-    localStorage.setItem(FRAME_DATA, JSON.stringify(frames.map(f => ({ blocks: f.blocks, id: f.id, label: f.label }))));
+    localStorage.setItem(FRAME_DATA, JSON.stringify(frames.map(f => ({ ...f, position: f.position.translate }))));
   }, [frames]);
+
+  // ------------------------------------------------------------------------------------
+  // Update local storage for scale
+  // ------------------------------------------------------------------------------------
+  useEffect(() => localStorage.setItem(ZOOM_KEY, scale.toString()), [scale]);
+
+  // ------------------------------------------------------------------------------------
+  // Update local storage for offset
+  // ------------------------------------------------------------------------------------
+  useEffect(() => localStorage.setItem(CANVAS_OFFSET, JSON.stringify(canvasOffset.translate)), [canvasOffset]);
 
   /** Reset the focused frame to the nearest one with existing blocks */
   useEffect(() => {
@@ -245,9 +264,12 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
       setFocusedFrame,
     }}>
       <TransformWrapper
-        minScale={0.5}
-        maxScale={2}
+        initialScale={scale}
+        minScale={MIN_ZOOM}
+        maxScale={MAX_ZOOM}
         limitToBounds={false}
+        initialPositionX={canvasOffset.x.value}
+        initialPositionY={canvasOffset.y.value}
         onTransformed={(ref, { scale, positionX, positionY }) => {
           setScale(scale);
           setCanvasOffset(Vector.from(positionX, positionY));
@@ -264,9 +286,9 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
         doubleClick={{ disabled: true }}
       >
         {(utils) => (
-          <div 
-            className={`fixed inset-0 ${currentTool === 'hand' ? 'cursor-move' : 'cursor-default'} bg-grid`} 
-            style={{ 
+          <div
+            className={`fixed inset-0 ${currentTool === 'hand' ? 'cursor-move' : 'cursor-default'} bg-grid`}
+            style={{
               backgroundPositionX: utils.instance.transformState.positionX,
               backgroundPositionY: utils.instance.transformState.positionY,
             }}
@@ -278,6 +300,15 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
               onDragEnd={handleDragEnd}
             >
               {children(frames)}
+              <div className="fixed top-4 left-4 flex gap-2">
+                <Link to="/" data-button>Back to Homepage</Link>
+                <button className="" onClick={() => {
+                  if (confirm("Are you sure you want to reset this playground? This cannot be undone!")) {
+                    localStorage.clear();
+                    location.reload();
+                  }
+                }}>Reset Playground</button>
+              </div>
               <DragOverlay style={{ scale: `${utils.instance.transformState.scale}` }} className="origin-top-left w-auto!" modifiers={[adjustToScale]} >
                 {activeBlock && <Block {...activeBlock} />}
               </DragOverlay>

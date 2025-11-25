@@ -4,13 +4,14 @@ import { PlaygroundContext } from "../context";
 import { CursorIcon, HandIcon } from "@phosphor-icons/react";
 import { tools, type Tool } from "../context/types";
 import Slider from "~/lib/generics/Slider";
+import { MAX_ZOOM, MIN_ZOOM } from "~/lib/constants";
 
 const toolMap: Record<Tool, React.ReactNode> = {
   move: <CursorIcon className="text-xl" />,
   hand: <HandIcon className="text-xl" />,
 }
 
-export default function Toolbar({ zoomIn, zoomOut, resetTransform }: ReactZoomPanPinchContentRef) {
+export default function Toolbar({ zoomIn, zoomOut, resetTransform, instance, setTransform }: ReactZoomPanPinchContentRef) {
   const context = useContext(PlaygroundContext);
   if (!context) return;
 
@@ -19,14 +20,19 @@ export default function Toolbar({ zoomIn, zoomOut, resetTransform }: ReactZoomPa
       {tools.map(tool => (
         <button
           key={tool}
-          className={`${context.tool === tool && 'bg-primary'}`}
+          className={`${context.tool === tool && 'bg-primary'} px-3`}
           onClick={() => context.setTool(tool)}
         >
           {toolMap[tool]}
         </button>
       ))}
       <button className="px-4 py-2" onClick={() => resetTransform()}>Reset Transform</button>
-      <Slider min={0.1} max={2} step={0.1} value={1} />
+      <Slider
+        min={MIN_ZOOM}
+        max={MAX_ZOOM}
+        step={0.2}
+        value={instance.transformState.scale}
+        onChange={val => setTransform(instance.transformState.positionX, instance.transformState.positionY, val, 0)} />
     </div>
   );
 }

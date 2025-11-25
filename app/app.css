@@ -32,8 +32,8 @@ body {
 }
 
 @layer base {
-  button {
-    @apply flex items-center rounded-md p-3 bg-accent cursor-pointer;
+  button, a[data-button] {
+    @apply flex items-center rounded-md px-6 py-3 bg-accent cursor-pointer;
   }
 
   input,

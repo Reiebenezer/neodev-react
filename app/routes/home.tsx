@@ -14,7 +14,7 @@ export default function Home() {
       <div className="min-h-full container mx-auto pt-64 flex flex-col items-center">
         <h1 className="text-7xl md:text-9xl font-bold">NeoDev</h1>
         <p className="my-12">Learning Web Development, Without the Code.</p>
-        <Link className="mt-16 px-6 py-3 rounded-lg bg-primary text-sm" to="/playground">Open Playground</Link>
+        <Link data-button to="/playground">Open Playground</Link>
       </div>
     </div>
   );
