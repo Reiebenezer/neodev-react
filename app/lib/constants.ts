@@ -1,1 +1,2 @@
-export const CANVAS_LIMIT = 1200;
+export const PREVIEW_FRAME_KEY = 'preview-frame-data';
+export const FRAME_DATA = 'frame-data';

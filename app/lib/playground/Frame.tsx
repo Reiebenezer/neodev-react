@@ -10,6 +10,7 @@ import { ContextMenuContext } from '../generics/ContextMenu';
 import ModalContextProvider, { ModalContext } from '../generics/Modal';
 import { PaperclipIcon, PencilSimpleIcon } from '@phosphor-icons/react';
 import { uniqueKeyedString } from '../utils';
+import { createBlock, createFrameInstanceBlock } from './Block';
 
 export default function Frame(data: FrameData) {
   const context = useContext(PlaygroundContext);
@@ -44,7 +45,7 @@ export default function Frame(data: FrameData) {
           }));
         }
       }
-    }).on('tap', e => {
+    }).on('tap', (e: Interact.PointerEvent) => {
       if (isTemplateFrame(data)) return;
       context.setFocusedFrame(data.id);
     }).pointerEvents({
@@ -70,7 +71,7 @@ export default function Frame(data: FrameData) {
         <div
           className={`${isTemplateFrame(data) ? 'bg-orange-700' : context.focusedFrame === data.id ? 'bg-violet-500' : 'bg-amber-500'} px-2 text-sm font-bold [writing-mode:vertical-rl]`}
           data-neodev-handle={id}
-          onContextMenu={() => {
+          onContextMenu={(e) => {
             if (isTemplateFrame(data)) return;
 
             contextMenuContext?.setOptions([
@@ -78,6 +79,18 @@ export default function Frame(data: FrameData) {
                 modalContext?.open((close) => (
                   <div className='flex flex-col min-w-lg'>
                     <h2 className="font-bold text-2xl">Select a frame from the list</h2>
+                    <div className="flex flex-col gap-1 mt-4">
+                      {context.frames.filter(f => f.id !== 'template' && f.id !== data.id).map(f => (
+                        <button
+                          key={f.id}
+                          className="bg-transparent hover:bg-primary"
+                          onClick={() => {
+                            context.updateFrame(f.id, prev => ({ ...prev, blocks: [...prev.blocks, createFrameInstanceBlock(data.id, data.label)] }));
+                            close();
+                          }}
+                        >{f.label}</button>
+                      ))}
+                    </div>
                   </div>
                 ))
               }],

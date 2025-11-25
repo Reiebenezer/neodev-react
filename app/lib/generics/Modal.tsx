@@ -35,7 +35,7 @@ export default function ModalContextProvider({ children }: { children: ReactNode
               animate={{ opacity: 1, scale: 1, transition: { delay: 0.1 } }}
               exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
               className="rounded-xl bg-bg shadow-2xl p-8 relative min-w-sm min-h-48">
-              <button className="absolute top-4 right-4" onClick={() => close(i)}><XIcon /></button>
+              <button className="absolute top-4 right-4 bg-transparent" onClick={() => close(i)}><XIcon /></button>
               {typeof content === 'function' ? content(() => close(i)) : content}
             </motion.div>
           </motion.div>

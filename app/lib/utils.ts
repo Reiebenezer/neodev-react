@@ -1,6 +1,3 @@
-import Vector from '@reiebenezer/ts-utils/vector';
-import { CANVAS_LIMIT } from './constants';
-
 const keys: Record<string, number> = {};
 
 export function uniqueKeyedString(prefix = 'key') {
@@ -8,10 +5,6 @@ export function uniqueKeyedString(prefix = 'key') {
 
   keys[prefix] = val;
   return `${prefix}${val}`;
-}
-
-export function relativeToCanvasOrigin(coords: Vector) {
-  return coords.add(Vector.from(CANVAS_LIMIT / 2, CANVAS_LIMIT / 2));
 }
 
 export function cloneObject<T>(obj: T): T {

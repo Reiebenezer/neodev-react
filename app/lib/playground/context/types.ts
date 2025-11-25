@@ -14,7 +14,7 @@ export interface TrimmedFrameData extends Omit<FrameData, 'id'> {}
 export interface BlockData {
   id: string;
   label: string;
-  represents: string & keyof HTMLElementTagNameMap;
+  represents: string & keyof HTMLElementTagNameMap | 'frame';
   properties?: BlockProperties;
 }
 
@@ -30,6 +30,7 @@ export interface BlockProperties {
   };
 
   style?: MutableCSSProperties;
+  referencedFrame?: string;
 }
 
 export type MutableCSSProperties = {

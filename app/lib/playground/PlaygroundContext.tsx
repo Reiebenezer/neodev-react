@@ -4,15 +4,16 @@ import { useCallback, useEffect, useState } from "react";
 import { PlaygroundContext, type PlaygroundContextProps } from "./context";
 import { createFrame, isTemplateFrame } from "./Frame";
 import { cloneObject, uniqueKeyedString as id } from "../utils";
-import Block, { createBlock, createTemplateBlock, isTemplateBlock } from "./Block";
+import Block, { createBlock, createTemplateBlock, isFrameInstanceBlock, isTemplateBlock } from "./Block";
 import { DndContext, DragOverlay, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent, type Modifier } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { type Tool, type BlockData } from "~/lib/playground/context/types";
+import { type Tool, type BlockData, type FrameData } from "~/lib/playground/context/types";
 import Toolbar from "./panels/Toolbar";
 import Preview from "./panels/Preview";
 import templateFrames from "./template";
 import Properties from "./panels/Properties";
 import InputLogger from "./InputLogger";
+import { FRAME_DATA, PREVIEW_FRAME_KEY } from "../constants";
 
 export default function PlaygroundContextProvider({ children }: { children: (frames: PlaygroundContextProps['frames']) => React.ReactNode }) {
   const [frames, setFrames] = useState(templateFrames);
@@ -71,7 +72,7 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
 
     const sourceFrame = frames.find(f => f.blocks.some(b => b.id === activeBlock.id));
 
-    if (!hoveredFrame || isTemplateFrame(hoveredFrame)) {
+    if (!hoveredFrame || isTemplateFrame(hoveredFrame) || (isFrameInstanceBlock(activeBlock.id) && hoveredFrame.id === activeBlock.properties?.referencedFrame)) {
       return;
     }
 
@@ -88,6 +89,7 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
       // New list index
       const newIndex = hoveredFrame.blocks.findIndex(b => hoveredBlockId === b.id);
 
+      // Add the block
       if (!hoveredFrame.blocks.some(b => isTemplateBlock(b)))
         updateFrame(hoveredFrame.id, prev => ({
           ...prev,
@@ -134,8 +136,11 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
       }
 
       // If the source is not the template frame, remove the block from this frame
-      if (!isTemplateBlock(clonedBlock))
-        updateFrame(sourceFrame.id, prev => ({ ...prev, blocks: prev.blocks.filter(b => b.id !== clonedBlock.id) }));
+      updateFrame(sourceFrame.id, prev => ({ ...prev, blocks: prev.blocks.filter(b => b.id !== activeBlock.id) }));
+
+      if (isActiveTemplateBlock && !isTemplateFrame(sourceFrame)) {
+        updateFrame('template', prev => ({ ...prev, blocks: prev.blocks.toSpliced(activeBlockIndex, 0, activeBlock) }))
+      }
 
       setFrames(prev => [...prev, createFrame(
         id('frame'),
@@ -184,11 +189,29 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
     y: transform.y / scale
   }), [scale]);
 
-  // Remove the frames with no blocks inside it
   useEffect(() => {
-    if (frames.some(f => f.blocks.length === 0))
-      setFrames(frames => frames.filter(f => f.blocks.length > 0));
-    
+
+    // Remove the frames with no blocks inside it
+    if (frames.some(f => f.blocks.length === 0)) {
+      const removedFrames: FrameData[] = [];
+
+      setFrames(frames => frames.filter(f => {
+        if (f.blocks.length === 0) {
+          removedFrames.push(f);
+          return false;
+        }
+        
+        return true;
+      }));
+
+      for (const { id } of removedFrames) {
+        console.log(id);
+        setFrames(frames => frames.map(f => ({ ...f, blocks: f.blocks.filter(b => !isFrameInstanceBlock(b) || b.properties?.referencedFrame !== id)})));
+      }
+    }
+
+    // Update localStorage
+    localStorage.setItem(FRAME_DATA, JSON.stringify(frames.map(f => ({ blocks: f.blocks, id: f.id, label: f.label }))));
   }, [frames]);
 
   /** Reset the focused frame to the nearest one with existing blocks */
@@ -196,6 +219,11 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
     if (frames.find(f => f.id === focusedFrame)?.blocks.length === 0) {
       setFocusedFrame(frames.filter(f => f.blocks.length > 0)[1].id);
     }
+
+    const focusedFrameData = frames.find(f => f.id === focusedFrame);
+
+    if (focusedFrameData)
+      localStorage.setItem(PREVIEW_FRAME_KEY, JSON.stringify(focusedFrameData.blocks));
 
   }, [frames, focusedFrame]);
 
