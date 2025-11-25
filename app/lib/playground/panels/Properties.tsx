@@ -1,0 +1,154 @@
+import { useCallback, useContext, useEffect, useState, type ChangeEvent, type ChangeEventHandler, type FormEvent } from "react";
+import { PlaygroundContext } from "../context";
+import type { BlockData, BlockProperties } from "../context/types";
+import { cloneObject } from "~/lib/utils";
+import { Choice, isChoice } from "~/lib/generics/properties/Choice";
+
+export default function Properties() {
+  const context = useContext(PlaygroundContext);
+
+  // Update the containing frame whenever this block's properties change
+  const updateContainingFrame = useCallback((subset: string, prop: string, e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    if (!context?.frames) return;
+    if (!context?.selectedBlock) return;
+
+    for (const frame of context.frames) {
+      let found = false;
+
+      for (const blockIndex in frame.blocks) {
+        const block = frame.blocks[blockIndex];
+
+        if (block.id === context.selectedBlock.id) {
+          // console.log(frame.id);
+
+          context.updateFrame(frame.id, prev => {
+            const updated = { ...prev };
+            const props = updated.blocks[blockIndex].properties as any;
+
+            if (props?.[subset]) {
+              const type = typeof props[subset][prop];
+              const clonedPropertySubset = { ...props[subset] };
+
+              switch (type) {
+                case "number":
+                case "bigint":
+                  clonedPropertySubset[prop] = (e.target as HTMLInputElement).valueAsNumber;
+                  break;
+
+                case "boolean":
+                  clonedPropertySubset[prop] = (e.target as HTMLInputElement).checked;
+                  break;
+
+                case "string":
+                case "undefined":
+                  clonedPropertySubset[prop] = e.target.value;
+                  break;
+
+                case "object":
+                  if (isChoice(props[subset][prop])) {
+                    clonedPropertySubset[prop].value = (e.target as HTMLSelectElement).value;
+                  } else {
+                    throw new Error(`Unrecognized object found: ${JSON.stringify(props[subset][prop])}`);
+                  }
+
+                  break;
+
+                case "symbol":
+                case "function":
+                  throw new Error('Unknown type found at property value');
+              }
+
+              props[subset] = clonedPropertySubset;
+
+            }
+
+            updated.blocks[blockIndex].properties = props;
+            return updated;
+          });
+
+          found = true;
+          break;
+        }
+      }
+
+      if (found) break;
+    }
+
+  }, [context?.frames, context?.selectedBlock]);
+
+  if (!context) return;
+  const properties = context.selectedBlock?.properties;
+
+  return (
+    <div
+      className="flex-1 bg-accent select-none px-4 py-2 flex flex-col gap-6 overflow-y-auto"
+      onKeyDown={(e) => {
+        e.stopPropagation();
+        if (e.key === 'Escape') (e.target as HTMLElement).blur();
+      }}
+      onWheel={e => e.stopPropagation()}
+    >
+      {properties?.image && (
+        <>
+          <p>Image Properties</p>
+          <div className="flex flex-col gap-4">
+            {Object.entries(properties.image).map(([prop, val]) => (
+              <div className="flex flex-col gap-2" key={`property-${prop}`}>
+                <label htmlFor={`property-${prop}`}>{prop}</label>
+                {isChoice(val)
+                  ? <select id={`property-${prop}`} value={val.value} onChange={e => updateContainingFrame('image', prop, e)} >
+                    {val.choices.map(c => <option value={c} key={c}>{c}</option>)}
+                  </select>
+                  : <input type="text" id={`property-${prop}`} value={val} onChange={e => updateContainingFrame('image', prop, e)} />
+                }
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {properties?.text && (
+        <>
+          <p>Text Properties</p>
+          <div className="flex flex-col gap-4">
+            {Object.entries(properties.text).map(([prop, val]) => (
+              <div className="flex flex-col gap-2" key={`property-${prop}`}>
+                <label htmlFor={`property-${prop}`}>{prop}</label>
+                {isChoice(val)
+                  ? <select id={`property-${prop}`} value={val.value} onChange={e => updateContainingFrame('text', prop, e)}>
+                    {val.choices.map(c => <option value={c} key={c}>{c}</option>)}
+                  </select>
+
+                  : <textarea id={`property-${prop}`} value={val} onChange={e => updateContainingFrame('text', prop, e)}></textarea>
+                }
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {properties?.style && (
+        <>
+          <p>Style Properties</p>
+          <div className="flex flex-col gap-4">
+            {Object.entries(properties.style).map(([prop, val]) => (
+              <div className="flex flex-col gap-2" key={`property-${prop}`}>
+                <label htmlFor={`property-${prop}`}>{prop}</label>
+                {isChoice(val)
+                  ? (
+                    <select id={`property-${prop}`} value={val.value} onChange={e => updateContainingFrame('style', prop, e)}>
+                      {val.choices.map(c => <option value={c} key={c}>{c}</option>)}
+                    </select>
+                  )
+                  : (
+                    <input step={4} type={typeof val === 'number' ? 'number' : 'text'} id={`property-${prop}`} value={val} onChange={e => updateContainingFrame('style', prop, e)} ></input>
+                  )
+                }
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

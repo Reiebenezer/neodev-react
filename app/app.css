@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --color-light: var(--color-gray-100);
+  --color-dark:  var(--color-gray-950);
+
+  --color-accent-light: var(--color-gray-200);
+  --color-accent-dark: var(--color-gray-900);
+  
+  --color-text: light-dark(var(--color-dark), var(--color-light));
+  --color-bg: light-dark(var(--color-light), var(--color-dark));
+  
+  --color-accent: light-dark(var(--color-accent-light), var(--color-accent-dark));
+  --color-primary: light-dark(var(--color-gray-400), var(--color-gray-800));
+}
+
+html,
+body {
+  @apply bg-bg;
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: dark;
+  }
+}
+
+@layer base {
+  button {
+    @apply flex items-center rounded-md p-3 bg-accent cursor-pointer;
+  }
+
+  input, textarea, select {
+    @apply p-2 border border-primary rounded-md resize-y;
+  }
+}
