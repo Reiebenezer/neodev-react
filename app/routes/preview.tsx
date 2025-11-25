@@ -1,28 +1,95 @@
-import { useEffect, useState, type HTMLAttributes } from "react";
-import { FRAME_DATA, PREVIEW_FRAME_KEY } from "~/lib/constants";
+import { Activity, useCallback, useEffect, useEffectEvent, useRef, useState, type HTMLAttributes } from "react";
+import { FRAME_DATA, PREVIEW_FRAME_KEY, PREVIEW_HTML } from "~/lib/constants";
 import { isChoice } from "~/lib/generics/properties/Choice";
 import { type BlockData, type FrameData } from "~/lib/playground/context/types";
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github-dark-dimmed.min.css';
+
+const languages = ['vanilla', 'react', 'svelte'] as const;
 
 export default function Preview() {
   // Local storage preview data
-  const [blocks, setBlocks] = useState<FrameData['blocks']>(JSON.parse(localStorage.getItem(PREVIEW_FRAME_KEY) ?? '[]'));
 
-  useEffect(() => {
-    const updateBlocks = () => {
-      setBlocks(JSON.parse(localStorage.getItem(PREVIEW_FRAME_KEY) ?? '[]'));
+  const [blocks, setBlocks] = useState<FrameData['blocks']>(JSON.parse(localStorage.getItem(PREVIEW_FRAME_KEY) ?? '[]'));
+  const previewWindowRef = useRef<HTMLDivElement>(null);
+  const codeRef = useRef<HTMLElement>(null);
+
+  const [showHTML, setShowHTML] = useState(false);
+  const [html, setHtml] = useState('');
+  const [lang, setLang] = useState<(typeof languages)[number]>('vanilla');
+
+  const updateHighlight = useEffectEvent(() => {
+    if (showHTML && codeRef.current) {
+      delete codeRef.current.dataset.highlighted;
+      hljs.highlightAll();
+    }
+  });
+    
+  const sethtmlbasedOnLang = useCallback(() => {
+    if (!previewWindowRef.current) return;
+    const html = previewWindowRef.current.innerHTML.replaceAll(/\>([\s\S]*?)\</g, '>\n\t$1\n<');
+
+    // setHtml();
+    switch (lang) {
+      case "vanilla":
+        setHtml(html);
+        break;
+
+      // case "react":
+      //   fetch("https://neodev-transpiler.onrender.com/transpile", { method: 'post', body:  }).then(res => res.text()).then(html => setHtml(html));
+      //   break;
+
+      // case "svelte":
+      //   setHtml(html);
+      //   break;
     }
 
-    window.addEventListener('storage', updateBlocks);
+  }, [previewWindowRef])
 
+  useEffect(() => {
+    if (!previewWindowRef.current) return;
+
+    const updateBlocks = () => {
+      if (!previewWindowRef.current) return;
+
+      setBlocks(JSON.parse(localStorage.getItem(PREVIEW_FRAME_KEY) ?? '[]'));
+      sethtmlbasedOnLang();
+    }
+
+    sethtmlbasedOnLang();
+
+    window.addEventListener('storage', updateBlocks);
     return () => { window.removeEventListener('storage', updateBlocks) };
 
-  }, []);
+  }, [previewWindowRef]);
+
+  useEffect(updateHighlight, [showHTML, codeRef]);
+  useEffect(() => {
+    localStorage.setItem(PREVIEW_HTML, html);
+    updateHighlight();
+
+  }, [html]);
 
   return (
-    <div className="aspect-4/3 bg-accent overflow-y-auto select-none" onWheel={e => e.stopPropagation()}>
-      {blocks.map(block => <RenderedBlock block={block} key={block.id} />)}
-    </div>
+    <>
+      <div className="aspect-4/3 bg-accent overflow-y-auto select-none" onWheel={e => e.stopPropagation()} ref={previewWindowRef}>
+        {blocks.map(block => <RenderedBlock block={block} key={block.id} />)}
+      </div>
+      <pre className={`fixed inset-0 aspect-4/3 bg-accent overflow-y-auto ${!showHTML && 'opacity-0 pointer-events-none'} text-sm`} onWheel={e => e.stopPropagation()}>
+        <code className="language-html h-full" ref={codeRef} dangerouslySetInnerHTML={{ __html: escapeHtml(html) }}></code>
+      </pre>
+      <button className="fixed bottom-4 right-4 bg-primary" onClick={() => setShowHTML(!showHTML)}>{showHTML ? 'Hide' : 'Show'} HTML</button>
+    </>
   );
+}
+
+function escapeHtml(unsafe: string) {
+  return unsafe
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 export function RenderedBlock({ block }: { block: BlockData }) {

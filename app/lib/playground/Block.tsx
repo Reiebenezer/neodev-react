@@ -3,15 +3,16 @@ import type { BlockData, BlockProperties } from "./context/types";
 import { uniqueKeyedString } from "../utils";
 import { PlaygroundContext } from "./context";
 
-export default function Block({ id, label, represents, ref, properties, ...props }: BlockData & HTMLProps<HTMLDivElement>) {
+export default function Block(data: BlockData & HTMLProps<HTMLDivElement>) {
   const context = useContext(PlaygroundContext);
+  const { id, label, represents, ref, properties, type, ...props } = data;
 
   const renderContents = () => {
-    if (isFrameInstanceBlock(id)) {
+    if (isFrameInstanceBlock(data)) {
       return <>Instance of <span className={`px-1 py-0.5 ${context?.focusedFrame === properties?.referencedFrame ? 'bg-violet-500' : 'bg-amber-500'}`}>{context?.frames.find(f => f.id === properties?.referencedFrame)?.label}</span></>
     }
 
-    if (isTemplateBlock(id) || !(properties?.text?.content)) return label;
+    if (isTemplateBlock(data) || !(properties?.text?.content)) return label;
     return (properties.text.content.length > 20 ? `${properties.text.content.slice(0, 20)}...` : properties.text.content);
   }
 
@@ -33,7 +34,8 @@ export function createBlock(label: string, represents: string & keyof HTMLElemen
     id: uniqueKeyedString(label),
     label,
     represents,
-    properties
+    properties,
+    type: 'tag',
   };
 }
 
@@ -42,29 +44,29 @@ export function createTemplateBlock(label: string, represents: string & keyof HT
     id: `${label}-template`,
     label,
     represents,
-    properties
+    properties,
+    type: 'template'
   };
 }
 
 export function createFrameInstanceBlock(frameId: string, frameLabel: string): BlockData {
   return {
-    id: `${frameId}-instance`,
+    id: `${uniqueKeyedString(frameId)}-instance`,
     label: `Instance of ${frameLabel}`,
     represents: 'frame',
     properties: {
       referencedFrame: frameId
-    }
+    },
+    type: 'frame-instance'
   }
 }
 
-export function isTemplateBlock(block: BlockData): boolean;
-export function isTemplateBlock(blockId: string): boolean;
-export function isTemplateBlock(block: BlockData | string): boolean {
-  return (typeof block === 'string' ? block : block.id).endsWith('template');
+export function isTemplateBlock(block: BlockData): boolean {
+  // return (typeof block === 'string' ? block : block.id).endsWith('template');
+  return block.type === 'template';
 }
 
-export function isFrameInstanceBlock(block: BlockData): boolean;
-export function isFrameInstanceBlock(blockId: string): boolean;
-export function isFrameInstanceBlock(block: BlockData | string): boolean {
-  return (typeof block === 'string' ? block : block.id).endsWith('instance');
+export function isFrameInstanceBlock(block: BlockData): boolean {
+  // return (typeof block === 'string' ? block : block.id).endsWith('instance');
+  return block.type === 'frame-instance';
 }

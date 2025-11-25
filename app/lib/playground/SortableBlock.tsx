@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react";
-import Block, { isTemplateBlock } from "./Block";
+import Block, { isFrameInstanceBlock, isTemplateBlock } from "./Block";
 import type { BlockData } from "./context/types";
 import { useSortable } from "@dnd-kit/sortable";
 import { PlaygroundContext } from "./context";
@@ -12,6 +12,13 @@ export default function SortableBlock(data: BlockData) {
   const { isDragging, attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: data.id,
   });
+
+  useEffect(() => {
+    if (isFrameInstanceBlock(data) && containingFrame && context?.frames.find(f => f.id === data.properties?.referencedFrame) === undefined) {
+      context?.updateFrame(containingFrame.id, prev => ({ ...prev, blocks: prev.blocks.filter(b => b.id !== data.id) }))
+    }
+
+  }, [context]);
 
   if (!context) return;
 

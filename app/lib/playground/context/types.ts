@@ -11,11 +11,15 @@ export interface FrameData {
 
 export interface TrimmedFrameData extends Omit<FrameData, 'id'> {}
 
+export const blockTypes = ['tag', 'template', 'frame-instance', 'style'] as const;
+export type BlockType = (typeof blockTypes)[number];
+
 export interface BlockData {
   id: string;
   label: string;
-  represents: string & keyof HTMLElementTagNameMap | 'frame';
+  represents: (string & keyof HTMLElementTagNameMap) | 'frame';
   properties?: BlockProperties;
+  type: BlockType;
 }
 
 export interface BlockProperties {

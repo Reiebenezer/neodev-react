@@ -72,7 +72,7 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
 
     const sourceFrame = frames.find(f => f.blocks.some(b => b.id === activeBlock.id));
 
-    if (!hoveredFrame || isTemplateFrame(hoveredFrame) || (isFrameInstanceBlock(activeBlock.id) && hoveredFrame.id === activeBlock.properties?.referencedFrame)) {
+    if (!hoveredFrame || isTemplateFrame(hoveredFrame) || (isFrameInstanceBlock(activeBlock) && hoveredFrame.id === activeBlock.properties?.referencedFrame)) {
       return;
     }
 
@@ -124,8 +124,10 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
     const sourceBlockIndex = sourceFrame.blocks.findIndex(b => b.id === clonedBlock.id);
 
     // Reassign the id if it is a template
+    // And change the type
     if (isActiveTemplateBlock) {
       clonedBlock.id = id(clonedBlock.label);
+      clonedBlock.type = 'tag';
     }
 
     // This is dragged over an empty space (only executed when there is more than one item in the previous frame)
@@ -138,9 +140,11 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
       // If the source is not the template frame, remove the block from this frame
       updateFrame(sourceFrame.id, prev => ({ ...prev, blocks: prev.blocks.filter(b => b.id !== activeBlock.id) }));
 
-      if (isActiveTemplateBlock && !isTemplateFrame(sourceFrame)) {
+      if (isActiveTemplateBlock && isTemplateFrame(sourceFrame)) {
         updateFrame('template', prev => ({ ...prev, blocks: prev.blocks.toSpliced(activeBlockIndex, 0, activeBlock) }))
       }
+
+      // console.log(isActiveTemplateBlock && !isTemplateFrame(sourceFrame));
 
       setFrames(prev => [...prev, createFrame(
         id('frame'),
@@ -152,7 +156,7 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
 
       return resetActiveBlock();
     }
-
+    
     // Move the array to the new index
     const destBlockIndex = sourceFrame.blocks.findIndex(b => b.id === over.id);
 
@@ -222,8 +226,9 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
 
     const focusedFrameData = frames.find(f => f.id === focusedFrame);
 
-    if (focusedFrameData)
+    if (focusedFrameData) {
       localStorage.setItem(PREVIEW_FRAME_KEY, JSON.stringify(focusedFrameData.blocks));
+    }
 
   }, [frames, focusedFrame]);
 

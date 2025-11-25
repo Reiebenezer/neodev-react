@@ -16,6 +16,7 @@
     "@react-router/node": "^7.9.2",
     "@react-router/serve": "^7.9.2",
     "@reiebenezer/ts-utils": "^0.1.2",
+    "highlight.js": "^11.11.1",
     "interactjs": "^1.10.27",
     "isbot": "^5.1.31",
     "motion": "^12.23.24",

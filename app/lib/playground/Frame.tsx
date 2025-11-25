@@ -80,7 +80,24 @@ export default function Frame(data: FrameData) {
                   <div className='flex flex-col min-w-lg'>
                     <h2 className="font-bold text-2xl">Select a frame from the list</h2>
                     <div className="flex flex-col gap-1 mt-4">
-                      {context.frames.filter(f => f.id !== 'template' && f.id !== data.id).map(f => (
+                      {context.frames.filter(
+                        f => {
+                          if (isTemplateFrame(f)) return false;
+                          if (f.id === data.id) return false;
+
+                          // Traverse the blocks and find frame instances. Check if it might cause a circular import
+                          function traverse(blocks?: BlockData[]): boolean {
+                            return blocks?.every(b => {
+                              if (b.type !== 'frame-instance') return true;
+                              if (b.properties?.referencedFrame === f.id) return false;
+
+                              return traverse(context?.frames.find(f => f.id === b.properties?.referencedFrame)?.blocks);
+                            }) ?? false;
+                          }
+
+                          return traverse(data.blocks);
+                        }
+                      ).map(f => (
                         <button
                           key={f.id}
                           className="bg-transparent hover:bg-primary"
