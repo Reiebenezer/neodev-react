@@ -1,9 +1,11 @@
 import { Activity, useCallback, useEffect, useEffectEvent, useRef, useState, type HTMLAttributes } from "react";
 import { FRAME_DATA, PREVIEW_FRAME_KEY, PREVIEW_HTML } from "~/lib/constants";
 import { isChoice } from "~/lib/generics/properties/Choice";
-import { type BlockData, type FrameData } from "~/lib/playground/context/types";
+import { type BlockData, type FrameData, type MutableCSSProperties } from "~/lib/playground/context/types";
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github-dark-dimmed.min.css';
+import { isStyleBlock } from "~/lib/playground/Block";
+import isColor from "~/lib/generics/properties/color";
 
 const languages = ['vanilla', 'react', 'svelte'] as const;
 
@@ -24,7 +26,7 @@ export default function Preview() {
       hljs.highlightAll();
     }
   });
-    
+
   const sethtmlbasedOnLang = useCallback(() => {
     if (!previewWindowRef.current) return;
     const html = previewWindowRef.current.innerHTML.replaceAll(/\>([\s\S]*?)\</g, '>\n\t$1\n<');
@@ -35,13 +37,19 @@ export default function Preview() {
         setHtml(html);
         break;
 
-      // case "react":
-      //   fetch("https://neodev-transpiler.onrender.com/transpile", { method: 'post', body:  }).then(res => res.text()).then(html => setHtml(html));
-      //   break;
+      case "react":
+        // fetch("https://neodev-transpiler.onrender.com/transpile", { method: 'post', body: html }).then(res => res.text()).then(html => setHtml(html));
+        fetch("http://127.0.0.1:8000/transpile", {
+          method: 'post', body: JSON.stringify({
+            framework: 'react',
+            body_json: html
+          })
+        }).then(res => res.text()).then(html => setHtml(html));
+        break;
 
-      // case "svelte":
-      //   setHtml(html);
-      //   break;
+      case "svelte":
+        setHtml(html);
+        break;
     }
 
   }, [previewWindowRef])
@@ -73,7 +81,7 @@ export default function Preview() {
   return (
     <>
       <div className="aspect-4/3 bg-accent overflow-y-auto select-none" onWheel={e => e.stopPropagation()} ref={previewWindowRef}>
-        {blocks.map(block => <RenderedBlock block={block} key={block.id} />)}
+        {condenseStyles(blocks).map(block => <RenderedBlock block={block} key={block.id} />)}
       </div>
       <pre className={`fixed inset-0 aspect-4/3 bg-accent overflow-y-auto ${!showHTML && 'opacity-0 pointer-events-none'} text-sm`} onWheel={e => e.stopPropagation()}>
         <code className="language-html h-full" ref={codeRef} dangerouslySetInnerHTML={{ __html: escapeHtml(html) }}></code>
@@ -92,7 +100,7 @@ function escapeHtml(unsafe: string) {
     .replaceAll("'", "&#039;");
 }
 
-export function RenderedBlock({ block }: { block: BlockData }) {
+function RenderedBlock({ block }: { block: BlockData }) {
   const frames: FrameData[] = JSON.parse(localStorage.getItem(FRAME_DATA) ?? '[]');
   const { represents: Element, properties } = block;
   const compiledProperties: HTMLAttributes<HTMLElement> & Record<string, any> = {};
@@ -145,4 +153,39 @@ export function RenderedBlock({ block }: { block: BlockData }) {
   return (
     <Element {...compiledProperties} />
   )
+}
+
+function condenseStyles(blocks: BlockData[]) {
+  const result: BlockData[] = [];
+
+
+  blocks.forEach((block) => {
+    if (!isStyleBlock(block)) {
+      result.push(block);
+      return;
+    }
+
+    if (result.length === 0) {
+      return;
+    }
+
+    const lastBlock = result.at(-1)!;
+
+    if (!(lastBlock.properties?.style)) {
+      lastBlock.properties = { style: {} };
+    }
+
+    for (const key in block.properties!.style) {
+      const style = block.properties!.style[key as keyof MutableCSSProperties];
+      
+      if (isColor(style)) {
+        Object.assign(lastBlock.properties.style!, { [key]: style.value })
+        return;
+      }
+
+      Object.assign(lastBlock.properties.style!, { [key]: style })
+    }
+  });
+
+  return result;
 }

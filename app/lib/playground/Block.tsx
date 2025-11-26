@@ -1,5 +1,5 @@
 import { useContext, type HTMLProps } from "react";
-import type { BlockData, BlockProperties } from "./context/types";
+import type { BlockData, BlockProperties, MutableCSSProperties } from "./context/types";
 import { uniqueKeyedString } from "../utils";
 import { PlaygroundContext } from "./context";
 
@@ -21,7 +21,7 @@ export default function Block(data: BlockData & HTMLProps<HTMLDivElement>) {
       {...props}
       ref={ref}
       data-id={id}
-      className={`p-4 border border-gray-600 rounded-lg min-w-64 ${props.className}`}
+      className={`p-4 border border-gray-600 rounded-lg min-w-64 ${(isStyleBlock(data) || represents === 'style') && 'bg-accent'} ${isStyleBlock(data) && 'ml-4'} ${props.className}`}
     >
       {renderContents()}
       {/* {id} */}
@@ -61,6 +61,30 @@ export function createFrameInstanceBlock(frameId: string, frameLabel: string): B
   }
 }
 
+export function createStyleBlock(label: string, style: MutableCSSProperties): BlockData {
+  return {
+    id: `${uniqueKeyedString(label)}-style`,
+    label,
+    represents: 'style',
+    properties: {
+      style
+    },
+    type: 'style'
+  };
+}
+
+export function createStyleTemplateBlock(label: string, style: MutableCSSProperties): BlockData {
+  return {
+    id: `${uniqueKeyedString(label)}-styletemplate`,
+    label,
+    represents: 'style',
+    properties: {
+      style
+    },
+    type: 'template'
+  };
+}
+
 export function isTemplateBlock(block: BlockData): boolean {
   // return (typeof block === 'string' ? block : block.id).endsWith('template');
   return block.type === 'template';
@@ -69,4 +93,8 @@ export function isTemplateBlock(block: BlockData): boolean {
 export function isFrameInstanceBlock(block: BlockData): boolean {
   // return (typeof block === 'string' ? block : block.id).endsWith('instance');
   return block.type === 'frame-instance';
+}
+
+export function isStyleBlock(block: BlockData): boolean {
+  return block.type === 'style';
 }

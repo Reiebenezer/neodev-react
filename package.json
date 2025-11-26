@@ -15,7 +15,7 @@
     "@phosphor-icons/react": "^2.1.10",
     "@react-router/node": "^7.9.2",
     "@react-router/serve": "^7.9.2",
-    "@reiebenezer/ts-utils": "^0.1.2",
+    "@reiebenezer/ts-utils": "^0.1.2-patch-2",
     "highlight.js": "^11.11.1",
     "interactjs": "^1.10.27",
     "isbot": "^5.1.31",

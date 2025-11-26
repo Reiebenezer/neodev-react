@@ -1,9 +1,14 @@
 import Vector from '@reiebenezer/ts-utils/vector';
-import { createTemplateBlock, createBlock } from './Block';
+import {
+  createTemplateBlock,
+  createBlock,
+  createStyleTemplateBlock,
+} from './Block';
 import type { PlaygroundContextProps } from './context';
 import { createFrame } from './Frame';
 import { uniqueKeyedString as id } from '../utils';
 import { Choice } from '../generics/properties/Choice';
+import { Color } from '@reiebenezer/ts-utils/color';
 
 const templateFrames: PlaygroundContextProps['frames'] = [
   // The template frame. This is copy-only, so any elements here are not removed.
@@ -79,6 +84,40 @@ const templateFrames: PlaygroundContextProps['frames'] = [
           src: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
           alt: 'body of water surrounded by trees (from Unsplash.com)',
         },
+      }),
+
+      // ------------------------------------------------------------------------------------
+      // STYLES
+      // ------------------------------------------------------------------------------------
+
+      // background color
+      createStyleTemplateBlock('Background Color', {
+        backgroundColor: Color('#004eff'),
+      }),
+      createStyleTemplateBlock('Text Color', { color: Color('#004eff') }),
+      createStyleTemplateBlock('Line Spacing', { lineHeight: 1.5 }),
+      createStyleTemplateBlock('Text Alignment', {
+        textAlign: Choice(['left', 'center', 'right'], 'left'),
+      }),
+      createStyleTemplateBlock('Width', { width: 360 }),
+      createStyleTemplateBlock('Height', { height: 360 }),
+
+      createStyleTemplateBlock('Margin (All Sides)', { margin: 16 }),
+      createStyleTemplateBlock('Left Margin', { marginLeft: 16 }),
+      createStyleTemplateBlock('Top Margin', { marginTop: 16 }),
+      createStyleTemplateBlock('Right Margin', { marginRight: 16 }),
+      createStyleTemplateBlock('Bottom Margin', { marginBottom: 16 }),
+
+      createStyleTemplateBlock('Padding (All Sides)', { padding: 16 }),
+      createStyleTemplateBlock('Left Padding', { paddingLeft: 16 }),
+      createStyleTemplateBlock('Top Padding', { paddingTop: 16 }),
+      createStyleTemplateBlock('Right Padding', { paddingRight: 16 }),
+      createStyleTemplateBlock('Bottom Padding', { paddingBottom: 16 }),
+
+      createStyleTemplateBlock('Alignment', {
+        display: Choice(['grid', 'flex'], 'flex'),
+        justifyContent: Choice(['start', 'center', 'end'], 'center'),
+        alignItems: Choice(['start', 'center', 'end'], 'center'),
       }),
     ],
     Vector.from(20, 80),

@@ -136,7 +136,11 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
     // And change the type
     if (isActiveTemplateBlock) {
       clonedBlock.id = id(clonedBlock.label);
-      clonedBlock.type = 'tag';
+      clonedBlock.type = clonedBlock.represents === 'style' ? 'style' : 'tag';
+
+      if (clonedBlock.represents === 'style') {
+        clonedBlock.id += '-style';
+      }
     }
 
     // This is dragged over an empty space (only executed when there is more than one item in the previous frame)
@@ -259,7 +263,7 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
       setTool: setCurrentTool,
       scale,
       selectedBlock,
-      setSelectedBlock,
+      setSelectedBlock, 
       focusedFrame,
       setFocusedFrame,
     }}>

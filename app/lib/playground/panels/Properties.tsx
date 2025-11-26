@@ -3,6 +3,8 @@ import { PlaygroundContext } from "../context";
 import type { BlockData, BlockProperties } from "../context/types";
 import { cloneObject } from "~/lib/utils";
 import { Choice, isChoice } from "~/lib/generics/properties/Choice";
+import { Color } from "@reiebenezer/ts-utils/color";
+import isColor, { type JSONColorValue } from "~/lib/generics/properties/color";
 
 export default function Properties() {
   const context = useContext(PlaygroundContext);
@@ -46,8 +48,14 @@ export default function Properties() {
 
                 case "object":
                   if (isChoice(props[subset][prop])) {
-                    clonedPropertySubset[prop].value = (e.target as HTMLSelectElement).value;
-                  } else {
+                    clonedPropertySubset[prop].value = e.target.value;
+                  }
+
+                  else if (isColor(props[subset][prop])) {
+                    clonedPropertySubset[prop].value = e.target.value;
+                  }
+
+                  else {
                     throw new Error(`Unrecognized object found: ${JSON.stringify(props[subset][prop])}`);
                   }
 
@@ -134,15 +142,20 @@ export default function Properties() {
             {Object.entries(properties.style).map(([prop, val]) => (
               <div className="flex flex-col gap-2" key={`property-${prop}`}>
                 <label htmlFor={`property-${prop}`}>{prop}</label>
-                {isChoice(val)
-                  ? (
-                    <select id={`property-${prop}`} value={val.value} onChange={e => updateContainingFrame('style', prop, e)}>
-                      {val.choices.map(c => <option value={c} key={c}>{c}</option>)}
-                    </select>
-                  )
-                  : (
-                    <input step={4} type={typeof val === 'number' ? 'number' : 'text'} id={`property-${prop}`} value={val} onChange={e => updateContainingFrame('style', prop, e)} ></input>
-                  )
+                {
+                  isColor(val)
+                    ? (
+                      <input type="color" id={`property-${prop}`} value={val.value} onChange={e => updateContainingFrame('style', prop, e)} />
+                    )
+                    : (isChoice(val)
+                      ? (
+                        <select id={`property-${prop}`} value={val.value} onChange={e => updateContainingFrame('style', prop, e)}>
+                          {val.choices.map(c => <option value={c} key={c}>{c}</option>)}
+                        </select>
+                      )
+                      : (
+                        <input step={4} type={typeof val === 'number' ? 'number' : 'text'} id={`property-${prop}`} value={val as string | number} onChange={e => updateContainingFrame('style', prop, e)} ></input>
+                      ))
                 }
               </div>
             ))}

@@ -1,3 +1,4 @@
+import type { Color } from '@reiebenezer/ts-utils/color';
 import Vector from '@reiebenezer/ts-utils/vector';
 import type { CSSProperties } from 'react';
 import type { Choice } from '~/lib/generics/properties/Choice';
@@ -40,7 +41,8 @@ export interface BlockProperties {
 export type MutableCSSProperties = {
   -readonly [K in keyof CSSProperties]:
     | CSSProperties[K]
-    | Choice<CSSProperties[K]>;
+    | Choice<CSSProperties[K]>
+    | Color
 };
 
 export const fontFamilies = ['Inter'] as const;

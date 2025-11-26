@@ -10,7 +10,7 @@
         "@phosphor-icons/react": "^2.1.10",
         "@react-router/node": "^7.9.2",
         "@react-router/serve": "^7.9.2",
-        "@reiebenezer/ts-utils": "^0.1.2",
+        "@reiebenezer/ts-utils": "^0.1.2-patch-2",
         "highlight.js": "^11.11.1",
         "interactjs": "^1.10.27",
         "isbot": "^5.1.31",
@@ -186,7 +186,7 @@
 
     "@react-router/serve": ["@react-router/serve@7.9.6", "", { "dependencies": { "@mjackson/node-fetch-server": "^0.2.0", "@react-router/express": "7.9.6", "@react-router/node": "7.9.6", "compression": "^1.7.4", "express": "^4.19.2", "get-port": "5.1.1", "morgan": "^1.10.0", "source-map-support": "^0.5.21" }, "peerDependencies": { "react-router": "7.9.6" }, "bin": { "react-router-serve": "bin.js" } }, "sha512-qIT8hp1RJ0VAHyXpfuwoO31b9evrjPLRhUugqYJ7BZLpyAwhRsJIaQvvj60yZwWBMF2/3LdZu7M39rf0FhL6Iw=="],
 
-    "@reiebenezer/ts-utils": ["@reiebenezer/ts-utils@0.1.2", "", { "dependencies": { "color-convert": "^3.1.0" }, "peerDependencies": { "typescript": "^5.9.2" } }, "sha512-Fit4n0XKYu2Sx+oZasRMIlnSKkqW0VcvBC/eRwjUQGUXB8Qp8UWW0CO3XP5boqegdN/NR+SDDYh0T88C9mrSow=="],
+    "@reiebenezer/ts-utils": ["@reiebenezer/ts-utils@0.1.2-patch-2", "", { "dependencies": { "color-convert": "^3.1.0", "react": "^19.2.0" }, "peerDependencies": { "typescript": "^5.9.2" } }, "sha512-d5jxPN2CliUaF2MUopYR/DfJCNZrQHaNAQE2W40xnD3voy/nDPdhG8FqUKYF+510QYhAtvJsAKIVDiHhTxIClQ=="],
 
     "@remix-run/node-fetch-server": ["@remix-run/node-fetch-server@0.9.0", "", {}, "sha512-SoLMv7dbH+njWzXnOY6fI08dFMI5+/dQ+vY3n8RnnbdG7MdJEgiP28Xj/xWlnRnED/aB6SFw56Zop+LbmaaKqA=="],
 
