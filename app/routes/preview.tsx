@@ -1,4 +1,4 @@
-import { Activity, useCallback, useEffect, useEffectEvent, useRef, useState, type HTMLAttributes } from "react";
+import { Activity, useCallback, useEffect, useEffectEvent, useRef, useState, type CSSProperties, type HTMLAttributes } from "react";
 import { FRAME_DATA, PREVIEW_FRAME_KEY, PREVIEW_HTML } from "~/lib/constants";
 import { isChoice } from "~/lib/generics/properties/Choice";
 import { type BlockData, type FrameData, type MutableCSSProperties } from "~/lib/playground/context/types";
@@ -144,7 +144,7 @@ function RenderedBlock({ block }: { block: BlockData }) {
     // console.log(referencedFrame);
 
     if (!referencedFrame) return;
-    return <div>{referencedFrame.blocks.map(block => <RenderedBlock key={`ref-${Element}-${block.id}`} block={block} />)}</div>;
+    return <div style={{ ...(properties?.style ?? {}) as CSSProperties }}>{referencedFrame.blocks.map(block => <RenderedBlock key={`ref-${Element}-${block.id}`} block={block} />)}</div>;
   }
 
   if ('content' in compiledProperties)
@@ -171,18 +171,22 @@ function condenseStyles(blocks: BlockData[]) {
 
     const lastBlock = result.at(-1)!;
 
-    if (!(lastBlock.properties?.style)) {
-      lastBlock.properties = { style: {} };
+    if (!lastBlock.properties) {
+      lastBlock.properties = {};
     }
+
+    if (!(lastBlock.properties.style)) {
+      lastBlock.properties.style = {};
+    };
 
     for (const key in block.properties!.style) {
       const style = block.properties!.style[key as keyof MutableCSSProperties];
-      
-      if (isColor(style)) {
-        Object.assign(lastBlock.properties.style!, { [key]: style.value })
-        return;
-      }
 
+      if (isColor(style) || isChoice(style)) {
+        Object.assign(lastBlock.properties.style!, { [key]: style.value })
+        continue;
+      }
+      
       Object.assign(lastBlock.properties.style!, { [key]: style })
     }
   });

@@ -116,6 +116,7 @@ const templateFrames: PlaygroundContextProps['frames'] = [
 
       createStyleTemplateBlock('Alignment', {
         display: Choice(['grid', 'flex'], 'flex'),
+        flexDirection: Choice(['row', 'column', 'row-reverse', 'column-reverse'], 'row'),
         justifyContent: Choice(['start', 'center', 'end'], 'center'),
         alignItems: Choice(['start', 'center', 'end'], 'center'),
       }),

@@ -1,16 +1,19 @@
-import { useCallback, useContext, useEffect, useState, type ChangeEvent, type ChangeEventHandler, type FormEvent } from "react";
+import { useCallback, useContext, useEffect, useRef, useState, type ChangeEvent, type ChangeEventHandler, type FormEvent } from "react";
 import { PlaygroundContext } from "../context";
 import type { BlockData, BlockProperties } from "../context/types";
 import { cloneObject } from "~/lib/utils";
 import { Choice, isChoice } from "~/lib/generics/properties/Choice";
 import { Color } from "@reiebenezer/ts-utils/color";
 import isColor, { type JSONColorValue } from "~/lib/generics/properties/color";
+import { ColorPicker, type ColorPickerChangeEvent } from 'primereact/colorpicker';
+import { Dropdown, type DropdownChangeEvent } from 'primereact/dropdown';
 
 export default function Properties() {
   const context = useContext(PlaygroundContext);
+  const propertiesPanelRef = useRef<HTMLDivElement>(null);
 
   // Update the containing frame whenever this block's properties change
-  const updateContainingFrame = useCallback((subset: string, prop: string, e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const updateContainingFrame = useCallback((subset: string, prop: string, e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | DropdownChangeEvent | ColorPickerChangeEvent) => {
     if (!context?.frames) return;
     if (!context?.selectedBlock) return;
 
@@ -48,11 +51,11 @@ export default function Properties() {
 
                 case "object":
                   if (isChoice(props[subset][prop])) {
-                    clonedPropertySubset[prop].value = e.target.value;
+                    clonedPropertySubset[prop].value = (e as DropdownChangeEvent).value;
                   }
 
                   else if (isColor(props[subset][prop])) {
-                    clonedPropertySubset[prop].value = e.target.value;
+                    clonedPropertySubset[prop].value = `#${(e as ColorPickerChangeEvent).value}`;
                   }
 
                   else {
@@ -84,6 +87,23 @@ export default function Properties() {
 
   }, [context?.frames, context?.selectedBlock]);
 
+  useEffect(() => {
+    if (!propertiesPanelRef.current) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!propertiesPanelRef.current?.contains(e.target as Node | null) && e.target !== propertiesPanelRef.current && propertiesPanelRef.current?.contains(document.activeElement)) {
+        (document.activeElement as HTMLElement).blur();
+      }
+    }
+
+    window.addEventListener('click', handleClickOutside);
+
+    return () => {
+      window.removeEventListener('click', handleClickOutside);
+    }
+
+  }, [propertiesPanelRef])
+
   if (!context) return;
   const properties = context.selectedBlock?.properties;
 
@@ -95,6 +115,7 @@ export default function Properties() {
         if (e.key === 'Escape') (e.target as HTMLElement).blur();
       }}
       onWheel={e => e.stopPropagation()}
+      ref={propertiesPanelRef}
     >
       {properties?.image && (
         <>
@@ -104,9 +125,12 @@ export default function Properties() {
               <div className="flex flex-col gap-2" key={`property-${prop}`}>
                 <label htmlFor={`property-${prop}`}>{prop}</label>
                 {isChoice(val)
-                  ? <select id={`property-${prop}`} value={val.value} onChange={e => updateContainingFrame('image', prop, e)} >
-                    {val.choices.map(c => <option value={c} key={c}>{c}</option>)}
-                  </select>
+                  ? (
+                    <Dropdown id={`property-${prop}`} value={val.value} options={val.choices} onChange={e => updateContainingFrame('style', prop, e)} placeholder={prop} />
+                    // <select id={`property-${prop}`} value={val.value} onChange={e => updateContainingFrame('image', prop, e)} >
+                    //   {val.choices.map(c => <option value={c} key={c}>{c}</option>)}
+                    // </select>
+                  )
                   : <input type="text" id={`property-${prop}`} value={val} onChange={e => updateContainingFrame('image', prop, e)} />
                 }
               </div>
@@ -123,9 +147,12 @@ export default function Properties() {
               <div className="flex flex-col gap-2" key={`property-${prop}`}>
                 <label htmlFor={`property-${prop}`}>{prop}</label>
                 {isChoice(val)
-                  ? <select id={`property-${prop}`} value={val.value} onChange={e => updateContainingFrame('text', prop, e)}>
-                    {val.choices.map(c => <option value={c} key={c}>{c}</option>)}
-                  </select>
+                  ? (
+                    <Dropdown id={`property-${prop}`} value={val.value} options={val.choices} onChange={e => updateContainingFrame('style', prop, e)} placeholder={prop} />
+                    // <select id={`property-${prop}`} value={val.value} onChange={e => updateContainingFrame('text', prop, e)}>
+                    //   {val.choices.map(c => <option value={c} key={c}>{c}</option>)}
+                    // </select>
+                  )
 
                   : <textarea id={`property-${prop}`} value={val} onChange={e => updateContainingFrame('text', prop, e)}></textarea>
                 }
@@ -145,13 +172,14 @@ export default function Properties() {
                 {
                   isColor(val)
                     ? (
-                      <input type="color" id={`property-${prop}`} value={val.value} onChange={e => updateContainingFrame('style', prop, e)} />
+                      <ColorPicker id={`property-${prop}`} value={val.value} onChange={e => updateContainingFrame('style', prop, e)} inline />
                     )
                     : (isChoice(val)
                       ? (
-                        <select id={`property-${prop}`} value={val.value} onChange={e => updateContainingFrame('style', prop, e)}>
-                          {val.choices.map(c => <option value={c} key={c}>{c}</option>)}
-                        </select>
+                        <Dropdown id={`property-${prop}`} value={val.value} options={val.choices} onChange={e => updateContainingFrame('style', prop, e)} placeholder={prop} />
+                        // <select id={`property-${prop}`} value={val.value} onChange={e => updateContainingFrame('style', prop, e)}>
+                        //   {val.choices.map(c => <option value={c} key={c}>{c}</option>)}
+                        // </select>
                       )
                       : (
                         <input step={4} type={typeof val === 'number' ? 'number' : 'text'} id={`property-${prop}`} value={val as string | number} onChange={e => updateContainingFrame('style', prop, e)} ></input>

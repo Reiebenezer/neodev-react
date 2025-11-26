@@ -151,7 +151,8 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
       }
 
       // If the source is not the template frame, remove the block from this frame
-      updateFrame(sourceFrame.id, prev => ({ ...prev, blocks: prev.blocks.filter(b => b.id !== activeBlock.id) }));
+      if (!isTemplateFrame(sourceFrame))
+        updateFrame(sourceFrame.id, prev => ({ ...prev, blocks: prev.blocks.filter(b => b.id !== activeBlock.id) }));
 
       if (isActiveTemplateBlock && !isTemplateFrame(sourceFrame)) {
         updateFrame('template', prev => ({ ...prev, blocks: prev.blocks.toSpliced(activeBlockIndex, 0, activeBlock) }))

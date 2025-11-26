@@ -38,8 +38,17 @@ body {
 
   input,
   textarea,
-  select {
+  select,
+  .p-dropdown {
     @apply p-2 border border-primary rounded-md resize-y;
+  }
+
+  .p-dropdown-items {
+    @apply rounded-md border shadow-lg border-primary bg-bg;
+  }
+
+  .p-dropdown-item {
+    @apply p-2 hover:bg-primary;
   }
 }
 
