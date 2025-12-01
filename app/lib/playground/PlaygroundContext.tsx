@@ -1,3 +1,4 @@
+import { TabView, TabPanel } from 'primereact/tabview';
 import { TransformWrapper } from "react-zoom-pan-pinch";
 import Vector from '@reiebenezer/ts-utils/vector';
 import { useCallback, useEffect, useState } from "react";
@@ -16,6 +17,7 @@ import InputLogger from "./InputLogger";
 import { CANVAS_OFFSET, FRAME_DATA, MAX_ZOOM, MIN_ZOOM, PREVIEW_FRAME_KEY, ZOOM_KEY } from "../constants";
 import { Unit } from "@reiebenezer/ts-utils/unit";
 import { Link } from "react-router";
+import AiInsights from './panels/AiInsights';
 
 export default function PlaygroundContextProvider({ children }: { children: (frames: PlaygroundContextProps['frames']) => React.ReactNode }) {
   const [frames, setFrames] = useState<FrameData[]>((JSON.parse(localStorage.getItem(FRAME_DATA) ?? "null"))?.map((f: FrameData & { position: [string, string] }) => ({ ...f, position: Vector(Unit(f.position[0]), Unit(f.position[1])) })) ?? templateFrames);
@@ -264,7 +266,7 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
       setTool: setCurrentTool,
       scale,
       selectedBlock,
-      setSelectedBlock, 
+      setSelectedBlock,
       focusedFrame,
       setFocusedFrame,
     }}>
@@ -325,7 +327,14 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
       </TransformWrapper>
       <div className="fixed inset-y-4 right-4 w-lg flex flex-col gap-4">
         <Preview />
-        <Properties />
+        <TabView className='bg-accent select-none overflow-y-auto px-4 py-2' activeIndex={0}>
+          <TabPanel header="Properties">
+            <Properties />
+          </TabPanel>
+          <TabPanel header="AI Insights">
+            <AiInsights />
+          </TabPanel>
+        </TabView>
       </div>
     </PlaygroundContext.Provider>
   );

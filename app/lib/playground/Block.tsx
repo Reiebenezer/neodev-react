@@ -1,7 +1,8 @@
-import { useContext, type HTMLProps } from "react";
+import { useContext, useMemo, type HTMLProps } from "react";
 import type { BlockData, BlockProperties, MutableCSSProperties } from "./context/types";
 import { uniqueKeyedString } from "../utils";
 import { PlaygroundContext } from "./context";
+import isColor, { type JSONColorValue } from "../generics/properties/color";
 
 export default function Block(data: BlockData & HTMLProps<HTMLDivElement>) {
   const context = useContext(PlaygroundContext);
@@ -16,13 +17,24 @@ export default function Block(data: BlockData & HTMLProps<HTMLDivElement>) {
     return (properties.text.content.length > 20 ? `${properties.text.content.slice(0, 20)}...` : properties.text.content);
   }
 
+  const backgroundColor = useMemo(() =>
+    ([...Object.values(properties?.style ?? {})].filter(v => isColor(v))?.at(0) as JSONColorValue)?.value,
+    [data]
+  );
+
   return (
     <div
       {...props}
       ref={ref}
       data-id={id}
-      className={`p-4 border border-gray-600 rounded-lg min-w-64 ${(isStyleBlock(data) || represents === 'style') && 'bg-accent'} ${isStyleBlock(data) && 'ml-4'} ${props.className}`}
+      className={
+        `p-4 border border-gray-600 rounded-lg min-w-64 relative isolate overflow-x-hidden
+        ${(isStyleBlock(data) || represents === 'style') && 'bg-accent'} 
+        ${isStyleBlock(data) && 'ml-4'} 
+        ${props.className}`
+      }
     >
+      <div className="absolute inset-0 -z-10" style={{ backgroundColor }} ></div>
       {renderContents()}
       {/* {id} */}
     </div>

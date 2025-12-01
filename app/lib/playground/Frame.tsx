@@ -1,16 +1,15 @@
 import Vector from '@reiebenezer/ts-utils/vector';
 import type { BlockData, FrameData } from "./context/types";
-import { useContext, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useEffectEvent, useRef, useState } from "react";
 import { PlaygroundContext } from "./context";
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import SortableBlock from './SortableBlock';
-import { useDraggable } from '@dnd-kit/core';
 import interact from 'interactjs';
 import { ContextMenuContext } from '../generics/ContextMenu';
-import ModalContextProvider, { ModalContext } from '../generics/Modal';
+import { ModalContext } from '../generics/Modal';
 import { PaperclipIcon, PencilSimpleIcon } from '@phosphor-icons/react';
 import { uniqueKeyedString } from '../utils';
-import { createBlock, createFrameInstanceBlock } from './Block';
+import { createFrameInstanceBlock } from './Block';
 
 export default function Frame(data: FrameData) {
   const context = useContext(PlaygroundContext);

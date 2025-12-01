@@ -109,7 +109,7 @@ export default function Properties() {
 
   return (
     <div
-      className="flex-1 bg-accent select-none px-4 py-2 flex flex-col gap-6 overflow-y-auto"
+      className="flex flex-col gap-6"
       onKeyDown={(e) => {
         e.stopPropagation();
         if (e.key === 'Escape') (e.target as HTMLElement).blur();
@@ -119,7 +119,7 @@ export default function Properties() {
     >
       {properties?.image && (
         <>
-          <p>Image Properties</p>
+          <p className="text-xs text-primary">Image Properties</p>
           <div className="flex flex-col gap-4">
             {Object.entries(properties.image).map(([prop, val]) => (
               <div className="flex flex-col gap-2" key={`property-${prop}`}>
@@ -141,7 +141,7 @@ export default function Properties() {
 
       {properties?.text && (
         <>
-          <p>Text Properties</p>
+          <p className="text-xs text-primary">Text Properties</p>
           <div className="flex flex-col gap-4">
             {Object.entries(properties.text).map(([prop, val]) => (
               <div className="flex flex-col gap-2" key={`property-${prop}`}>
@@ -164,7 +164,7 @@ export default function Properties() {
 
       {properties?.style && (
         <>
-          <p>Style Properties</p>
+          <p className="text-xs text-primary">Style Properties</p>
           <div className="flex flex-col gap-4">
             {Object.entries(properties.style).map(([prop, val]) => (
               <div className="flex flex-col gap-2" key={`property-${prop}`}>
