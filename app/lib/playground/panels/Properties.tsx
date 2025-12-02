@@ -17,9 +17,9 @@ export default function Properties() {
     if (!context?.frames) return;
     if (!context?.selectedBlock) return;
 
-    for (const frame of context.frames) {
-      let found = false;
+    let found = false;
 
+    for (const frame of context.frames) {
       for (const blockIndex in frame.blocks) {
         const block = frame.blocks[blockIndex];
 
@@ -85,6 +85,20 @@ export default function Properties() {
       if (found) break;
     }
 
+    if (!found) {
+      context.setSelectedBlock(undefined);
+    }
+
+  }, [context?.frames, context?.selectedBlock]);
+
+  useEffect(() => {
+    const allBlocks = context?.frames.map(f => f.blocks).flat();
+    if (!allBlocks || allBlocks.length === 0) return;
+
+    if (allBlocks.every(b => b.id !== context?.selectedBlock?.id)) {
+      context?.setSelectedBlock(undefined);
+    }
+
   }, [context?.frames, context?.selectedBlock]);
 
   useEffect(() => {
@@ -109,7 +123,7 @@ export default function Properties() {
 
   return (
     <div
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-6 p-4"
       onKeyDown={(e) => {
         e.stopPropagation();
         if (e.key === 'Escape') (e.target as HTMLElement).blur();
@@ -119,7 +133,7 @@ export default function Properties() {
     >
       {properties?.image && (
         <>
-          <p className="text-xs text-primary">Image Properties</p>
+          <p className="text-xs bg-primary p-1.5 rounded-sm">Image Properties</p>
           <div className="flex flex-col gap-4">
             {Object.entries(properties.image).map(([prop, val]) => (
               <div className="flex flex-col gap-2" key={`property-${prop}`}>
@@ -141,7 +155,7 @@ export default function Properties() {
 
       {properties?.text && (
         <>
-          <p className="text-xs text-primary">Text Properties</p>
+          <p className="text-xs bg-primary p-1.5 rounded-sm">Text Properties</p>
           <div className="flex flex-col gap-4">
             {Object.entries(properties.text).map(([prop, val]) => (
               <div className="flex flex-col gap-2" key={`property-${prop}`}>
@@ -164,7 +178,7 @@ export default function Properties() {
 
       {properties?.style && (
         <>
-          <p className="text-xs text-primary">Style Properties</p>
+          <p className="text-xs bg-primary p-1.5 rounded-sm">Style Properties</p>
           <div className="flex flex-col gap-4">
             {Object.entries(properties.style).map(([prop, val]) => (
               <div className="flex flex-col gap-2" key={`property-${prop}`}>

@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+@import "./hljs-light.css";
+@import "./hljs-dark.css";
 
 @theme {
   --font-sans:
@@ -25,10 +27,10 @@ html,
 body {
   min-height: 100vh;
   @apply bg-radial-[at_50%_75%] from-accent/30 to-bg;
-  color-scheme: dark;
-
-  /* @media (prefers-color-scheme: dark) {
-  } */
+  
+  @media (prefers-color-scheme: dark) {
+    color-scheme: dark;
+  }
 }
 
 @layer base {
@@ -43,6 +45,10 @@ body {
     @apply p-2 border border-primary rounded-md resize-y;
   }
 
+  .p-dropdown-items-wrapper {
+    @apply z-10;
+  }
+
   .p-dropdown-items {
     @apply rounded-md border shadow-lg border-primary bg-bg;
   }
@@ -52,12 +58,17 @@ body {
   }
 
   .p-tabview {
-    @apply flex-1 flex flex-col;
+    @apply grow flex flex-col overflow-auto;
   }
 
   .p-tabview-nav {
     @apply flex *:flex;
   }
+
+  .p-tabview-nav-container {
+    @apply sticky top-0 inset-x-0 bg-accent z-1;
+  }
+
 
   .p-tabview-nav-link {
     @apply py-3 px-6 whitespace-nowrap cursor-pointer;
@@ -68,13 +79,17 @@ body {
   }
 
   .p-tabview-panels {
-    @apply flex-1 *:h-full *:pt-4;
+    @apply flex-1 grid h-[50%];
+  }
+
+  .p-tabview-panel {
+    @apply min-h-full;
   }
 }
 
 @utility bg-grid {
   background-size: 40px 40px;
   background-image: 
-    linear-gradient(to right, color-mix(in oklch, var(--color-gray-900) 50%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklch, var(--color-gray-900) 50%, transparent) 1px, transparent 1px);
+    linear-gradient(to right, color-mix(in oklch, var(--color-accent) 50%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--color-accent) 50%, transparent) 1px, transparent 1px);
 }

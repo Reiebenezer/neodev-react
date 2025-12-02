@@ -9,6 +9,7 @@ import { createFrame } from './Frame';
 import { uniqueKeyedString as id } from '../utils';
 import { Choice } from '../generics/properties/Choice';
 import { Color } from '@reiebenezer/ts-utils/color';
+import { type ProvidedFonts } from '../font-loader';
 
 const templateFrames: PlaygroundContextProps['frames'] = [
   // The template frame. This is copy-only, so any elements here are not removed.
@@ -21,6 +22,24 @@ const templateFrames: PlaygroundContextProps['frames'] = [
           content: 'Hello NeoDev!',
         },
         style: {
+          fontFamily: Choice<ProvidedFonts>(
+            [
+              'Poppins',
+              'Inter',
+              'Arial',
+              'Montserrat',
+              'Times New Roman',
+              'Merriweather',
+              'Playfair Display',
+              'Oswald',
+              'Bebas Neue',
+              'Indie Flower',
+              'Caveat',
+              'Satisfy',
+              'Great Vibes',
+            ],
+            'Poppins'
+          ),
           fontSize: 16,
           fontWeight: Choice(['normal', 'bold'], 'normal'),
         },
@@ -32,6 +51,24 @@ const templateFrames: PlaygroundContextProps['frames'] = [
           content: 'Main Title',
         },
         style: {
+          fontFamily: Choice<ProvidedFonts>(
+            [
+              'Poppins',
+              'Inter',
+              'Arial',
+              'Montserrat',
+              'Times New Roman',
+              'Merriweather',
+              'Playfair Display',
+              'Oswald',
+              'Bebas Neue',
+              'Indie Flower',
+              'Caveat',
+              'Satisfy',
+              'Great Vibes',
+            ],
+            'Poppins'
+          ),
           fontSize: 40,
           fontWeight: Choice(['normal', 'bold'], 'bold'),
         },
@@ -43,6 +80,24 @@ const templateFrames: PlaygroundContextProps['frames'] = [
           content: 'Section Title',
         },
         style: {
+          fontFamily: Choice<ProvidedFonts>(
+            [
+              'Poppins',
+              'Inter',
+              'Arial',
+              'Montserrat',
+              'Times New Roman',
+              'Merriweather',
+              'Playfair Display',
+              'Oswald',
+              'Bebas Neue',
+              'Indie Flower',
+              'Caveat',
+              'Satisfy',
+              'Great Vibes',
+            ],
+            'Poppins'
+          ),
           fontSize: 32,
           fontWeight: Choice(['normal', 'bold'], 'bold'),
         },
@@ -54,6 +109,24 @@ const templateFrames: PlaygroundContextProps['frames'] = [
           content: 'Subtitle',
         },
         style: {
+          fontFamily: Choice<ProvidedFonts>(
+            [
+              'Poppins',
+              'Inter',
+              'Arial',
+              'Montserrat',
+              'Times New Roman',
+              'Merriweather',
+              'Playfair Display',
+              'Oswald',
+              'Bebas Neue',
+              'Indie Flower',
+              'Caveat',
+              'Satisfy',
+              'Great Vibes',
+            ],
+            'Poppins'
+          ),
           fontSize: 24,
           fontWeight: Choice(['normal', 'bold'], 'bold'),
         },
@@ -63,9 +136,27 @@ const templateFrames: PlaygroundContextProps['frames'] = [
       createTemplateBlock('Link', 'a', {
         text: {
           content: 'Link',
-          href: 'https://github.com/Reiebenezer/Neodev',
+          href: 'https://github.com/Reiebenezer/neodev-react',
         },
         style: {
+          fontFamily: Choice<ProvidedFonts>(
+            [
+              'Poppins',
+              'Inter',
+              'Arial',
+              'Montserrat',
+              'Times New Roman',
+              'Merriweather',
+              'Playfair Display',
+              'Oswald',
+              'Bebas Neue',
+              'Indie Flower',
+              'Caveat',
+              'Satisfy',
+              'Great Vibes',
+            ],
+            'Poppins'
+          ),
           fontSize: 16,
           fontWeight: Choice(['normal', 'bold'], 'normal'),
           textDecoration: Choice([
@@ -116,7 +207,10 @@ const templateFrames: PlaygroundContextProps['frames'] = [
 
       createStyleTemplateBlock('Alignment', {
         display: Choice(['grid', 'flex'], 'flex'),
-        flexDirection: Choice(['row', 'column', 'row-reverse', 'column-reverse'], 'row'),
+        flexDirection: Choice(
+          ['row', 'column', 'row-reverse', 'column-reverse'],
+          'row'
+        ),
         justifyContent: Choice(['start', 'center', 'end'], 'center'),
         alignItems: Choice(['start', 'center', 'end'], 'center'),
       }),
@@ -128,12 +222,59 @@ const templateFrames: PlaygroundContextProps['frames'] = [
   createFrame(
     id('frame'),
     [
+      // h1
+      createBlock('Main Title', 'h1', {
+        text: {
+          content: 'Hello NeoDev User!',
+        },
+        style: {
+          fontFamily: Choice<ProvidedFonts>(
+            [
+              'Poppins',
+              'Inter',
+              'Arial',
+              'Montserrat',
+              'Times New Roman',
+              'Merriweather',
+              'Playfair Display',
+              'Oswald',
+              'Bebas Neue',
+              'Indie Flower',
+              'Caveat',
+              'Satisfy',
+              'Great Vibes',
+            ],
+            'Inter'
+          ),
+          fontSize: 40,
+          fontWeight: Choice(['normal', 'bold'], 'bold'),
+        },
+      }),
+      // p
       createBlock('Paragaph Text', 'p', {
         text: {
-          content: 'Hello NeoDev!',
+          content:
+            'Try dragging different blocks from the template frame to the Main frame, or click on my block to change my properties!',
         },
-
         style: {
+          fontFamily: Choice<ProvidedFonts>(
+            [
+              'Poppins',
+              'Inter',
+              'Arial',
+              'Montserrat',
+              'Times New Roman',
+              'Merriweather',
+              'Playfair Display',
+              'Oswald',
+              'Bebas Neue',
+              'Indie Flower',
+              'Caveat',
+              'Satisfy',
+              'Great Vibes',
+            ],
+            'Inter'
+          ),
           fontSize: 16,
           fontWeight: Choice(['normal', 'bold'], 'normal'),
         },

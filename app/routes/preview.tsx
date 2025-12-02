@@ -1,103 +1,49 @@
 import { Activity, useCallback, useEffect, useEffectEvent, useRef, useState, type CSSProperties, type HTMLAttributes } from "react";
-import { FRAME_DATA, PREVIEW_FRAME_KEY, PREVIEW_HTML } from "~/lib/constants";
+import { FRAME_DATA, PREVIEW_FRAME_DATA, PREVIEW_HTML } from "~/lib/constants";
 import { isChoice } from "~/lib/generics/properties/Choice";
 import { type BlockData, type FrameData, type MutableCSSProperties } from "~/lib/playground/context/types";
-import hljs from 'highlight.js';
-import 'highlight.js/styles/github-dark-dimmed.min.css';
+
 import { isStyleBlock } from "~/lib/playground/Block";
 import isColor from "~/lib/generics/properties/color";
-
-const languages = ['vanilla', 'react', 'svelte'] as const;
+import '~/preview.css';
+import { loadFont, type ProvidedFonts } from "~/lib/font-loader";
 
 export default function Preview() {
   // Local storage preview data
 
-  const [blocks, setBlocks] = useState<FrameData['blocks']>(JSON.parse(localStorage.getItem(PREVIEW_FRAME_KEY) ?? '[]'));
+  const [blocks, setBlocks] = useState<FrameData['blocks']>(JSON.parse(localStorage.getItem(PREVIEW_FRAME_DATA) ?? '[]'));
   const previewWindowRef = useRef<HTMLDivElement>(null);
-  const codeRef = useRef<HTMLElement>(null);
 
-  const [showHTML, setShowHTML] = useState(false);
-  const [html, setHtml] = useState('');
-  const [lang, setLang] = useState<(typeof languages)[number]>('vanilla');
-
-  const updateHighlight = useEffectEvent(() => {
-    if (showHTML && codeRef.current) {
-      delete codeRef.current.dataset.highlighted;
-      hljs.highlightAll();
-    }
-  });
-
-  const sethtmlbasedOnLang = useCallback(() => {
-    if (!previewWindowRef.current) return;
-    const html = previewWindowRef.current.innerHTML.replaceAll(/\>([\s\S]*?)\</g, '>\n\t$1\n<');
-
-    // setHtml();
-    switch (lang) {
-      case "vanilla":
-        setHtml(html);
-        break;
-
-      case "react":
-        // fetch("https://neodev-transpiler.onrender.com/transpile", { method: 'post', body: html }).then(res => res.text()).then(html => setHtml(html));
-        fetch("http://127.0.0.1:8000/transpile", {
-          method: 'post', body: JSON.stringify({
-            framework: 'react',
-            body_json: html
-          })
-        }).then(res => res.text()).then(html => setHtml(html));
-        break;
-
-      case "svelte":
-        setHtml(html);
-        break;
-    }
-
-  }, [previewWindowRef])
-
+  // Update the preview list of blocks when localStorage changes
   useEffect(() => {
-    if (!previewWindowRef.current) return;
-
-    const updateBlocks = () => {
-      if (!previewWindowRef.current) return;
-
-      setBlocks(JSON.parse(localStorage.getItem(PREVIEW_FRAME_KEY) ?? '[]'));
-      sethtmlbasedOnLang();
+    const updateBlocks = (e: StorageEvent) => {
+      if (e.key === PREVIEW_FRAME_DATA) {
+        setBlocks(JSON.parse(localStorage.getItem(PREVIEW_FRAME_DATA) ?? '[]'));
+      }
     }
-
-    sethtmlbasedOnLang();
 
     window.addEventListener('storage', updateBlocks);
-    return () => { window.removeEventListener('storage', updateBlocks) };
+    return () => { window.removeEventListener('storage', updateBlocks) };;
+  }, []);
 
-  }, [previewWindowRef]);
-
-  useEffect(updateHighlight, [showHTML, codeRef]);
+  // Update local storage with the produced preview HTML when the list of blocks change
   useEffect(() => {
-    localStorage.setItem(PREVIEW_HTML, html);
-    updateHighlight();
+    if (!previewWindowRef.current) return;
 
-  }, [html]);
+    localStorage.setItem(
+      PREVIEW_HTML,
+      previewWindowRef.current.innerHTML.replaceAll(/\>([\s\S]*?)\</g, '>\n\t$1\n<')
+    );
+
+  }, [blocks, previewWindowRef]);
 
   return (
     <>
       <div className="aspect-4/3 bg-accent overflow-y-auto select-none" onWheel={e => e.stopPropagation()} ref={previewWindowRef}>
         {condenseStyles(blocks).map(block => <RenderedBlock block={block} key={block.id} />)}
       </div>
-      <pre className={`fixed inset-0 aspect-4/3 bg-accent overflow-y-auto ${!showHTML && 'opacity-0 pointer-events-none'} text-sm`} onWheel={e => e.stopPropagation()}>
-        <code className="language-html h-full" ref={codeRef} dangerouslySetInnerHTML={{ __html: escapeHtml(html) }}></code>
-      </pre>
-      <button className="fixed bottom-4 right-4 bg-primary" onClick={() => setShowHTML(!showHTML)}>{showHTML ? 'Hide' : 'Show'} HTML</button>
     </>
   );
-}
-
-function escapeHtml(unsafe: string) {
-  return unsafe
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 }
 
 function RenderedBlock({ block }: { block: BlockData }) {
@@ -118,7 +64,11 @@ function RenderedBlock({ block }: { block: BlockData }) {
           case 'fontSize':
           case 'width':
           case 'height':
-            compiledProperties.style[key] = `${properties.style[key]}px`
+            compiledProperties.style[key] = `${properties.style[key]}px`;
+            break;
+
+          case 'fontFamily':
+            loadFont(compiledProperties.style[key] as ProvidedFonts);
         }
       }
 
@@ -186,7 +136,7 @@ function condenseStyles(blocks: BlockData[]) {
         Object.assign(lastBlock.properties.style!, { [key]: style.value })
         continue;
       }
-      
+
       Object.assign(lastBlock.properties.style!, { [key]: style })
     }
   });

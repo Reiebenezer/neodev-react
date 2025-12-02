@@ -1,7 +1,7 @@
 import { TabView, TabPanel } from 'primereact/tabview';
 import { TransformWrapper } from "react-zoom-pan-pinch";
 import Vector from '@reiebenezer/ts-utils/vector';
-import { useCallback, useEffect, useState } from "react";
+import { Activity, useCallback, useEffect, useState } from "react";
 import { PlaygroundContext, type PlaygroundContextProps } from "./context";
 import { createFrame, isTemplateFrame } from "./Frame";
 import { cloneObject, uniqueKeyedString as id } from "../utils";
@@ -14,16 +14,24 @@ import Preview from "./panels/Preview";
 import templateFrames from "./template";
 import Properties from "./panels/Properties";
 import InputLogger from "./InputLogger";
-import { CANVAS_OFFSET, FRAME_DATA, MAX_ZOOM, MIN_ZOOM, PREVIEW_FRAME_KEY, ZOOM_KEY } from "../constants";
+import { CANVAS_OFFSET, FRAME_DATA, MAX_ZOOM, MIN_ZOOM, PREVIEW_FRAME_DATA, PREVIEW_FRAME_NAME, ZOOM_KEY } from "../constants";
 import { Unit } from "@reiebenezer/ts-utils/unit";
 import { Link } from "react-router";
 import AiInsights from './panels/AiInsights';
+import CodePreview from './panels/CodePreview';
+import { useStorage } from '../hooks';
+import SVGOverlay from './SVGOverlay';
+import Tutorial from './panels/Tutorial';
 
 export default function PlaygroundContextProvider({ children }: { children: (frames: PlaygroundContextProps['frames']) => React.ReactNode }) {
   const [frames, setFrames] = useState<FrameData[]>((JSON.parse(localStorage.getItem(FRAME_DATA) ?? "null"))?.map((f: FrameData & { position: [string, string] }) => ({ ...f, position: Vector(Unit(f.position[0]), Unit(f.position[1])) })) ?? templateFrames);
   const [activeBlock, setActiveBlock] = useState<BlockData>();
   const [activeBlockIndex, setActiveBlockIndex] = useState(-1);
   const [currentTool, setCurrentTool] = useState<Tool>('move');
+  const [isDragging, setIsDragging] = useState(false);
+
+  const [isPreviewShown, setIsPreviewShown] = useState(true);
+  const [isInfoPanelShown, setIsInfoPanelShown] = useState(true);
 
   // Pan and zoom
   const [scale, setScale] = useState(parseFloat(localStorage.getItem(ZOOM_KEY) ?? '1'));
@@ -40,7 +48,7 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
   const [selectedBlock, setSelectedBlock] = useState<BlockData>();
 
   // Focused frame for rendering
-  const [focusedFrame, setFocusedFrame] = useState<string>(frames[1].id);
+  const [focusedFrame, setFocusedFrame] = useState(frames[1].id);
 
   const updateFrame: PlaygroundContextProps['updateFrame'] = useCallback((id, dataOrUpdater) => {
 
@@ -62,6 +70,8 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
   );
 
   const handleDragStart = (e: DragEndEvent) => {
+    setIsDragging(true);
+
     // Find the block somewhere where it exists
     for (const { blocks } of frames) {
       const block = blocks.find(b => b.id === e.active.id.toString());
@@ -119,6 +129,8 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
   }
 
   const handleDragEnd = (e: DragEndEvent) => {
+    setIsDragging(false);
+
     const { over } = e;
     if (!activeBlock) return;
 
@@ -253,8 +265,13 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
     const focusedFrameData = frames.find(f => f.id === focusedFrame);
 
     if (focusedFrameData) {
-      localStorage.setItem(PREVIEW_FRAME_KEY, JSON.stringify(focusedFrameData.blocks));
+      localStorage.setItem(PREVIEW_FRAME_DATA, JSON.stringify(focusedFrameData.blocks));
     }
+
+    const label = frames.find(f => f.id === focusedFrame)?.label;
+
+    if (label)
+      localStorage.setItem(PREVIEW_FRAME_NAME, label)
 
   }, [frames, focusedFrame]);
 
@@ -269,6 +286,23 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
       setSelectedBlock,
       focusedFrame,
       setFocusedFrame,
+      isDragging,
+      setIsDragging,
+      resetTransform() {
+        setScale(1);
+        setCanvasOffset(Vector.ZERO);
+      },
+
+      isPreviewShown,
+      isInfoPanelShown,
+
+      togglePreview() {
+        setIsPreviewShown(prev => !prev);
+      },
+
+      toggleInfo() {
+        setIsInfoPanelShown(prev => !prev);
+      },
     }}>
       <TransformWrapper
         initialScale={scale}
@@ -293,48 +327,61 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
         doubleClick={{ disabled: true }}
       >
         {(utils) => (
-          <div
-            className={`fixed inset-0 ${currentTool === 'hand' ? 'cursor-move' : 'cursor-default'} bg-grid`}
-            style={{
-              backgroundPositionX: utils.instance.transformState.positionX,
-              backgroundPositionY: utils.instance.transformState.positionY,
-            }}
-          >
-            <DndContext
-              sensors={sensors}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDragEnd={handleDragEnd}
+          <>
+            <SVGOverlay />
+            <div
+              className={`fixed inset-0 ${currentTool === 'hand' ? 'cursor-move' : 'cursor-default'} bg-grid`}
+              style={{
+                backgroundPositionX: utils.instance.transformState.positionX,
+                backgroundPositionY: utils.instance.transformState.positionY,
+              }}
             >
-              {children(frames)}
-              <div className="fixed top-4 left-4 flex gap-2">
-                <Link to="/" data-button>Back to Homepage</Link>
-                <button className="" onClick={() => {
-                  if (confirm("Are you sure you want to reset this playground? This cannot be undone!")) {
-                    localStorage.clear();
-                    location.reload();
-                  }
-                }}>Reset Playground</button>
-              </div>
-              <DragOverlay style={{ scale: `${utils.instance.transformState.scale}` }} className="origin-top-left w-auto!" modifiers={[adjustToScale]} >
-                {activeBlock && <Block {...activeBlock} />}
-              </DragOverlay>
-            </DndContext>
-            <Toolbar {...utils} />
-            <InputLogger />
-          </div>
+              <DndContext
+                sensors={sensors}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragEnd={handleDragEnd}
+              >
+                {children(frames)}
+                <div className="fixed top-4 left-4 flex gap-2">
+                  <Link to="/" data-button>Back to Homepage</Link>
+                  <button className="" onClick={() => {
+                    if (confirm("Are you sure you want to reset this playground? This cannot be undone!")) {
+                      localStorage.clear();
+                      location.reload();
+                    }
+                  }}>Reset Playground</button>
+                </div>
+                <DragOverlay style={{ scale: `${utils.instance.transformState.scale}` }} className="origin-top-left w-auto!" modifiers={[adjustToScale]} >
+                  {activeBlock && <Block {...activeBlock} />}
+                </DragOverlay>
+              </DndContext>
+              <Toolbar />
+              <InputLogger />
+            </div>
+          </>
         )}
       </TransformWrapper>
       <div className="fixed inset-y-4 right-4 w-lg flex flex-col gap-4">
-        <Preview />
-        <TabView className='bg-accent select-none overflow-y-auto px-4 py-2' activeIndex={0}>
-          <TabPanel header="Properties">
-            <Properties />
-          </TabPanel>
-          <TabPanel header="AI Insights">
-            <AiInsights />
-          </TabPanel>
-        </TabView>
+        <Activity mode={isPreviewShown ? "visible" : "hidden"}>
+          <Preview />
+        </Activity>
+        <Activity mode={isInfoPanelShown ? "visible" : "hidden"}>
+          <TabView className='bg-accent select-none relative' activeIndex={0} onWheel={e => e.stopPropagation()}>
+            <TabPanel header="Tutorial">
+              <Tutorial />
+            </TabPanel>
+            <TabPanel header="Properties">
+              <Properties />
+            </TabPanel>
+            <TabPanel header="AI Insights">
+              <AiInsights />
+            </TabPanel>
+            <TabPanel header="Preview Code">
+              <CodePreview />
+            </TabPanel>
+          </TabView>
+        </Activity>
       </div>
     </PlaygroundContext.Provider>
   );

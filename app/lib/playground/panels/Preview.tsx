@@ -1,24 +1,41 @@
-import { useContext, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type HTMLAttributes, type HTMLProps } from "react";
+import { useContext, useLayoutEffect, useRef } from "react";
 import { PlaygroundContext } from "../context";
-import Vector from '@reiebenezer/ts-utils/vector';
-import type { BlockData } from "../context/types";
-import { cloneObject } from "~/lib/utils";
-import { Choice, isChoice } from "~/lib/generics/properties/Choice";
 
 export default function Preview() {
   const context = useContext(PlaygroundContext);
+  const ref = useRef<HTMLIFrameElement>(null);
+
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+
+    const handler = (e: Event) => {
+      // console.log(e.target, (e.target as HTMLElement)?.tagName);
+
+      if (
+        (e.target as HTMLElement)?.tagName === "A" &&
+        confirm(`WARNING: Visiting unknown links could pose security risks. Only open this link if you trust it. Are you sure you want to open ${(e.target as HTMLAnchorElement).href}?`)
+      ) {
+        const link = document.createElement('a');
+        link.href = (e.target as HTMLAnchorElement).href;
+        link.target = "_blank";
+
+        link.click();
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      window.focus();
+    }
+
+    ref.current.contentWindow?.addEventListener('click', handler);
+
+    return () => ref.current?.contentWindow?.removeEventListener('click', handler);
+  }, [ref])
 
   if (!context) return;
 
   return (
-    <iframe src="/preview" className="aspect-4/3"></iframe>
+    <iframe src="/preview" className="aspect-4/3" tabIndex={-1} ref={ref}></iframe>
   );
-
-  // const focusedFrame = context.frames.find(f => f.id === context.focusedFrame);
-
-  // return (
-  //   <div className="aspect-4/3 bg-accent overflow-y-auto select-none" onWheel={e => e.stopPropagation()}>
-  //     {focusedFrame?.blocks.map(block => <RenderedBlock block={block} key={block.id} />)}
-  //   </div>
-  // );
 }

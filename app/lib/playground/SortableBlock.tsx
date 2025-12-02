@@ -33,6 +33,7 @@ export default function SortableBlock(data: BlockData) {
     <Block
       {...data}
       ref={setNodeRef} {...listeners} {...attributes}
+      data-neodev-block-id={data.id}
       style={style}
       className={`${isDragging && 'opacity-0'} ${context.selectedBlock?.id === data.id && 'outline-2 outline-offset-1 outline-green-500'} touch-none`}
       onClick={(e) => {
@@ -42,7 +43,13 @@ export default function SortableBlock(data: BlockData) {
         if (isTemplateBlock(data)) return;
         context.setSelectedBlock(data);
       }}
-      onContextMenu={() => {
+      onContextMenu={(e) => {
+        if (isTemplateBlock(data)) {
+          e.stopPropagation();
+          e.preventDefault();
+          return;
+        }
+
         contextMenuContext?.setOptions([
           [
             (<div className='flex gap-2 items-center'><TrashIcon />Delete Block</div>),

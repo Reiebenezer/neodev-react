@@ -11,7 +11,15 @@ export interface PlaygroundContextProps {
   setSelectedBlock: Dispatch<SetStateAction<BlockData | undefined>>;
   focusedFrame: string;
   setFocusedFrame: Dispatch<SetStateAction<string>>;
-  
+  isDragging: boolean;
+  setIsDragging: Dispatch<SetStateAction<boolean>>;
+  resetTransform(): void;
+
+  readonly isPreviewShown: boolean;
+  readonly isInfoPanelShown: boolean;
+
+  togglePreview(): void;
+  toggleInfo(): void;
 }
 
 export const PlaygroundContext = createContext<PlaygroundContextProps | null>(null);

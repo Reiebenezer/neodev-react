@@ -25,6 +25,8 @@ export default function Frame(data: FrameData) {
       ...prev,
       position: pos
     }));
+
+    context?.setIsDragging(false);
   });
 
   useEffect(() => {
@@ -40,10 +42,10 @@ export default function Frame(data: FrameData) {
       },
 
       listeners: {
+        start() { context?.setIsDragging(true) },
         move(e: Interact.DragEvent) {
           setPos(prev => prev.add(Vector.from(e.dx / context.scale, e.dy / context.scale)));
         },
-
         end: updateGlobalPosition
       }
     }).on('tap', (e: Interact.PointerEvent) => {
@@ -57,7 +59,7 @@ export default function Frame(data: FrameData) {
       instance.unset();
     }
 
-  }, [ref, context])
+  }, [ref, context?.tool, context?.scale])
 
   if (!context) return;
 

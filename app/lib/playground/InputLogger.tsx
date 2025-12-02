@@ -25,7 +25,9 @@ export default function InputLogger() {
     },
     'ctrl+0': e => {
       e.preventDefault();
-      panZoomUtils.resetTransform();
+
+      context.resetTransform();
+      setTimeout(() => panZoomUtils.resetTransform(0), 1);
     },
     'escape': () => {
       context.setSelectedBlock(undefined);
@@ -89,7 +91,7 @@ export default function InputLogger() {
       panZoomUtils.setTransform(transformState.positionX + e.deltaY * speedFactor, transformState.positionY + e.deltaX * speedFactor, transformState.scale, 0);
     }
 
-    else 
+    else
       panZoomUtils.setTransform(transformState.positionX + e.deltaX * speedFactor, transformState.positionY + e.deltaY * speedFactor, transformState.scale, 0);
   });
 

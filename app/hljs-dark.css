@@ -1,0 +1,141 @@
+@media (prefers-color-scheme: dark) {
+  .hljs {
+    border: none;
+  }
+
+  /* Comments, doc strings */
+  .hljs-comment,
+  .hljs-quote,
+  .hljs-deletion {
+    color: #6a9955;
+    font-style: italic;
+  }
+
+  /* punctuation and plain text */
+  .hljs-punctuation,
+  .hljs-selector-tag .hljs-punctuation,
+  .hljs-operator {
+    color: #d4d4d4;
+  }
+
+  /* Keywords, storage, built-ins, booleans, symbols */
+  .hljs-keyword,
+  .hljs-selector-tag,
+  .hljs-literal,
+  .hljs-symbol,
+  .hljs-bullet,
+  .hljs-built_in,
+  .hljs-built_in-name {
+    color: #569cd6;
+  }
+
+  /* Functions and titles */
+  .hljs-title,
+  .hljs-section,
+  .hljs-name,
+  .hljs-function {
+    color: #dcdcaa;
+  }
+
+  /* Types, class names */
+  .hljs-type,
+  .hljs-class .hljs-title {
+    color: #4ec9b0;
+  }
+
+  /* Numbers, constants, regex */
+  .hljs-number,
+  .hljs-regexp,
+  .hljs-literal {
+    color: #b5cea8;
+  }
+
+  /* Strings and template strings */
+  .hljs-string,
+  .hljs-template-string,
+  .hljs-link {
+    color: #ce9178;
+  }
+
+  /* Attributes, HTML attribute names, params */
+  .hljs-attr,
+  .hljs-attribute,
+  .hljs-params {
+    color: #9cdcfe;
+  }
+
+  /* Meta (imports, pragmas, directives) */
+  .hljs-meta,
+  .hljs-meta-keyword {
+    color: #c586c0;
+  }
+
+  /* HTML / JSX / XML tags, names, classes, ids */
+  .hljs-tag,
+  .hljs-name,
+  .hljs-selector-id,
+  .hljs-selector-class {
+    color: #569cd6;
+  }
+
+  /* Inline code inside prose (smaller, less padded) */
+  :not(pre) > code.hljs {
+    padding: 0.15em 0.35em;
+    border-radius: 4px;
+    font-size: 0.95em;
+  }
+
+  /* Language-specific tweaks (HTML, JSX, Svelte) */
+  /* HTML & JSX: ensure tags are colored distinctively */
+  .language-html .hljs-tag,
+  .language-html .hljs-name,
+  .language-jsx .hljs-tag,
+  .language-jsx .hljs-name {
+    color: #569cd6;
+  }
+
+  /* Attributes in HTML/JSX/Svelte */
+  .language-html .hljs-attr,
+  .language-jsx .hljs-attr,
+  .language-svelte .hljs-attribute {
+    color: #9cdcfe;
+  }
+
+  /* Svelte: treat component tags/HTML tags similarly */
+  .language-svelte .hljs-tag,
+  .language-svelte .hljs-name {
+    color: #dcdcaa;
+  }
+
+  /* Additional styling for inserted/removed lines (diffs) */
+  .hljs-addition {
+    background: rgba(76, 175, 80, 0.15);
+    color: #81c784;
+    display: inline-block;
+    padding: 0 0.15em;
+    border-radius: 2px;
+  }
+  .hljs-deletion {
+    background: rgba(244, 67, 54, 0.15);
+    color: #e57373;
+    display: inline-block;
+    padding: 0 0.15em;
+    border-radius: 2px;
+  }
+
+  /* Emphasis and strong */
+  .hljs-emphasis {
+    font-style: italic;
+  }
+  .hljs-strong {
+  }
+
+  /* Optional high-contrast mode (if you want pure black background and brighter text) */
+  /*
+.hljs.contrast {
+  background: #000000;
+  border-color: #111111;
+  color: #f8f8f8;
+}
+*/
+}

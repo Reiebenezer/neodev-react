@@ -1,6 +1,6 @@
 import { useContext, useMemo, type HTMLProps } from "react";
 import type { BlockData, BlockProperties, MutableCSSProperties } from "./context/types";
-import { uniqueKeyedString } from "../utils";
+import { colorIsDarkAdvanced, uniqueKeyedString } from "../utils";
 import { PlaygroundContext } from "./context";
 import isColor, { type JSONColorValue } from "../generics/properties/color";
 
@@ -28,15 +28,17 @@ export default function Block(data: BlockData & HTMLProps<HTMLDivElement>) {
       ref={ref}
       data-id={id}
       className={
-        `p-4 border border-gray-600 rounded-lg min-w-64 relative isolate overflow-x-hidden
+        `p-4 border border-gray-600 rounded-lg min-w-64 whitespace-nowrap relative isolate overflow-x-hidden
         ${(isStyleBlock(data) || represents === 'style') && 'bg-accent'} 
         ${isStyleBlock(data) && 'ml-4'} 
         ${props.className}`
       }
     >
-      <div className="absolute inset-0 -z-10" style={{ backgroundColor }} ></div>
-      {renderContents()}
-      {/* {id} */}
+      <div className={`absolute inset-0 -z-10`} style={{ backgroundColor }} ></div>
+      <span style={{ color: backgroundColor ? (colorIsDarkAdvanced(backgroundColor) ? "var(--color-light)" : "var(--color-dark)") : "" }}>
+        {renderContents()}
+        {/* {id} */}
+      </span>
     </div>
   );
 }

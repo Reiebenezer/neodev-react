@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-light: var(--color-gray-100);
+  --color-dark: var(--color-gray-950);
+
+  --color-accent-light: var(--color-gray-200);
+  --color-accent-dark: var(--color-gray-900);
+
+  --color-text: light-dark(var(--color-dark), var(--color-light));
+  --color-bg: light-dark(var(--color-light), var(--color-dark));
+
+  --color-accent: light-dark(
+    var(--color-accent-light),
+    var(--color-accent-dark)
+  );
+  --color-primary: light-dark(var(--color-gray-400), var(--color-gray-800));
+}
+
+
+@layer base {
+  a {
+    @apply underline decoration-blue-600 text-blue-600 visited:text-purple-800 visited:decoration-purple-800;
+  }
+}

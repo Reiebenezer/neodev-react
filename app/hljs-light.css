@@ -1,0 +1,155 @@
+/* Colors taken/mapped from akamud One Light theme (OneLight.json). See repo.  */
+/* comments & doc  */
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion {
+  color: #a0a1a7;
+  font-style: italic;
+}
+
+/* punctuation  */
+.hljs-punctuation {
+  color: #383a42;
+}
+
+/* keywords, storage, boolean, builtin */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #a626a4;
+}
+
+/* functions, titles */
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-function {
+  color: #005cc5;
+}
+
+/* types,
+class names  */
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #017ac6;
+}
+
+/* numbers,
+constants  */
+.hljs-number,
+.hljs-regexp,
+.hljs-literal {
+  color: #986801;
+}
+
+/* strings  */
+.hljs-string,
+.hljs-template-string,
+.hljs-link {
+  color: #50a14f;
+}
+
+/* attributes,
+html attr names,
+params  */
+.hljs-attr,
+.hljs-attribute,
+.hljs-params {
+  color: #c0732c;
+}
+
+/* meta (imports, pragmas)  */
+.hljs-meta,
+.hljs-meta-keyword {
+  color: #8b8b8b;
+}
+
+/* selectors,
+tags (HTML tags)  */
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: #e45649;
+}
+
+/* builtins & headers  */
+.hljs-built_in,
+.hljs-title.function_ {
+  color: #0184bb;
+}
+
+/* additions / changes  */
+.hljs-addition {
+  background: #e6ffed;
+  color: #237a3a;
+  display: inline-block;
+  padding: 0 0.15em;
+  border-radius: 2px;
+}
+
+/* deletions  */
+.hljs-deletion {
+  background: #ffefef;
+  color: #8b1f1f;
+  display: inline-block;
+  padding: 0 0.15em;
+  border-radius: 2px;
+}
+
+/* emphasis & strong  */
+.hljs-emphasis {
+  font-style: italic;
+}
+.hljs-strong {
+  font-weight: 700;
+}
+
+/* Inline code inside prose,
+keep legible */
+:not(pre) > code.hljs {
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+  font-size: 0.95em;
+}
+
+/* Language-specific small tweaks / / HTML: tag names & attribute names  */
+.language-html .hljs-tag,
+.language-html .hljs-name {
+  color: #e45649;
+}
+.language-html .hljs-attr {
+  color: #c0732c;
+}
+
+/* JSX: JSX tag names & attribute props  */
+.language-jsx .hljs-tag,
+.language-jsx .hljs-name {
+  color: #e45649;
+}
+.language-jsx .hljs-attr {
+  color: #c0732c;
+}
+.language-jsx .hljs-keyword {
+  color: #a626a4;
+}
+
+/* Svelte: component tags and directives  */
+.language-svelte .hljs-tag,
+.language-svelte .hljs-name {
+  color: #005cc5;
+}
+.language-svelte .hljs-attribute {
+  color: #c0732c;
+}
+
+/* small accessibility tweak: increase contrast if container background is pure white  */
+.hljs.contrast {
+  background: #ffffff;
+  border-color: #e0e0e0;
+  color: #2f2f2f;
+}
