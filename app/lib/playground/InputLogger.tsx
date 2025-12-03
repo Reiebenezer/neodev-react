@@ -19,6 +19,10 @@ export default function InputLogger() {
       e.preventDefault();
       panZoomUtils.zoomIn(0.1, 0);
     },
+    'ctrl++': (e) => {
+      e.preventDefault();
+      panZoomUtils.zoomIn(0.1, 0);
+    },
     'ctrl+-': e => {
       e.preventDefault();
       panZoomUtils.zoomOut(0.1, 0);
@@ -32,7 +36,13 @@ export default function InputLogger() {
     'escape': () => {
       context.setSelectedBlock(undefined);
       unfocusActiveElement();
-    }
+    },
+    'ctrl+p': (e) => {
+      e.preventDefault();
+      context.togglePreview();
+    },
+    'ctrl+i': () => context.toggleInfo(),
+    'ctrl+q': () => context.resetPlayground()
   };
 
   const handleKeyboardShortcut = (e: KeyboardEvent) => {

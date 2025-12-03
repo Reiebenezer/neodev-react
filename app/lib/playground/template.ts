@@ -170,7 +170,7 @@ const templateFrames: PlaygroundContextProps['frames'] = [
       }),
 
       // img
-      createTemplateBlock('image', 'img', {
+      createTemplateBlock('Image', 'img', {
         image: {
           src: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
           alt: 'body of water surrounded by trees (from Unsplash.com)',

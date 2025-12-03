@@ -5,6 +5,7 @@ import { useRef, useState, useEffectEvent, useCallback, useEffect, useMemo, useL
 import { OUTPUT_FRAMEWORK, PREVIEW_FRAME_NAME, PREVIEW_HTML } from '~/lib/constants';
 import { useInspect, useStorage } from '~/lib/hooks';
 import jsbeautify from 'js-beautify';
+import { Color } from '@reiebenezer/ts-utils/color';
 
 hljs_svelte(hljs);
 const languages = ['html', 'react', 'svelte'] as const;
@@ -27,7 +28,11 @@ export default function CodePreview() {
   const [svelteCode, setSvelteCode] = useState<string>();
 
   useEffect(() => {
-    const sanitizedHtml = html?.replaceAll(/\>([\s\S]*?)\</g, '>\n\t$1\n<');
+    const sanitizedHtml = html
+      ?.replaceAll(/\>([\s\S]*?)\</g, '>\n\t$1\n<')
+      .replaceAll(/rgba?\((\d{1,3}), (\d{1,3}), (\d{1,3})\)/g, (str, r, g, b) => {
+        return Color({ r: parseInt(r), g: parseInt(g), b: parseInt(b) }).hex().toLowerCase();
+      });
     if (!sanitizedHtml) return;
 
     setVanillaCode(jsbeautify.html(`

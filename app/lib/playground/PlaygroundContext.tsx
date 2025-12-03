@@ -14,7 +14,7 @@ import Preview from "./panels/Preview";
 import templateFrames from "./template";
 import Properties from "./panels/Properties";
 import InputLogger from "./InputLogger";
-import { CANVAS_OFFSET, FRAME_DATA, MAX_ZOOM, MIN_ZOOM, PREVIEW_FRAME_DATA, PREVIEW_FRAME_NAME, ZOOM_KEY } from "../constants";
+import { CANVAS_OFFSET, FRAME_DATA, MAX_ZOOM, MIN_ZOOM, OUTPUT_FRAMEWORK, PREVIEW_FRAME_DATA, PREVIEW_FRAME_NAME, PREVIEW_HTML, ZOOM_KEY } from "../constants";
 import { Unit } from "@reiebenezer/ts-utils/unit";
 import { Link } from "react-router";
 import AiInsights from './panels/AiInsights';
@@ -221,6 +221,21 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
     y: transform.y / scale
   }), [scale]);
 
+  const resetPlayground = () => {
+    if (confirm("Are you sure you want to reset this playground? This cannot be undone!")) {
+      // localStorage.clear();
+      localStorage.removeItem(CANVAS_OFFSET);
+      localStorage.removeItem(FRAME_DATA);
+      localStorage.removeItem(PREVIEW_FRAME_DATA);
+      localStorage.removeItem(PREVIEW_FRAME_NAME);
+      localStorage.removeItem(PREVIEW_HTML);
+      localStorage.removeItem('zoom');
+      localStorage.removeItem(OUTPUT_FRAMEWORK);
+
+      location.reload();
+    }
+  }
+
   useEffect(() => {
 
     // Remove the frames with no blocks inside it
@@ -303,6 +318,8 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
       toggleInfo() {
         setIsInfoPanelShown(prev => !prev);
       },
+
+      resetPlayground
     }}>
       <TransformWrapper
         initialScale={scale}
@@ -345,12 +362,7 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
                 {children(frames)}
                 <div className="fixed top-4 left-4 flex gap-2">
                   <Link to="/" data-button>Back to Homepage</Link>
-                  <button className="" onClick={() => {
-                    if (confirm("Are you sure you want to reset this playground? This cannot be undone!")) {
-                      localStorage.clear();
-                      location.reload();
-                    }
-                  }}>Reset Playground</button>
+                  <button className="" onClick={resetPlayground}>Reset Playground</button>
                 </div>
                 <DragOverlay style={{ scale: `${utils.instance.transformState.scale}` }} className="origin-top-left w-auto!" modifiers={[adjustToScale]} >
                   {activeBlock && <Block {...activeBlock} />}

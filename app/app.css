@@ -38,6 +38,14 @@ body {
     @apply flex items-center rounded-md px-6 py-3 bg-accent cursor-pointer;
   }
 
+  kbd {
+    @apply text-xs p-1 rounded-md bg-primary border border-primary;
+  }
+
+  blockquote {
+    @apply px-4 py-0.5 border-l-4 border-l-primary bg-primary/30;
+  }
+
   input,
   textarea,
   select,
@@ -66,9 +74,8 @@ body {
   }
 
   .p-tabview-nav-container {
-    @apply sticky top-0 inset-x-0 bg-accent z-1;
+    @apply sticky top-0 inset-x-0 bg-accent z-1 overflow-x-clip;
   }
-
 
   .p-tabview-nav-link {
     @apply py-3 px-6 whitespace-nowrap cursor-pointer;
@@ -79,7 +86,7 @@ body {
   }
 
   .p-tabview-panels {
-    @apply flex-1 grid h-[50%];
+    @apply flex-1 grid;
   }
 
   .p-tabview-panel {

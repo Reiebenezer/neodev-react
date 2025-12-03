@@ -20,6 +20,8 @@ export interface PlaygroundContextProps {
 
   togglePreview(): void;
   toggleInfo(): void;
+
+  resetPlayground(): void;
 }
 
 export const PlaygroundContext = createContext<PlaygroundContextProps | null>(null);

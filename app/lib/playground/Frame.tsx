@@ -74,11 +74,12 @@ export default function Frame(data: FrameData) {
         <div
           className={`${isTemplateFrame(data) ? 'bg-orange-700' : context.focusedFrame === data.id ? 'bg-violet-500' : 'bg-amber-500'} px-2 text-sm font-bold [writing-mode:vertical-rl]`}
           data-neodev-handle={id}
+          title='Try dragging me around!'
           onContextMenu={(e) => {
             if (isTemplateFrame(data)) return;
 
             contextMenuContext?.setOptions([
-              [<div className='flex gap-2 items-center'><PaperclipIcon />Attach to...</div>, () => {
+              [<div className='flex gap-2 items-center'><PaperclipIcon />Import to frame...</div>, () => {
                 modalContext?.open((close) => (
                   <div className='flex flex-col min-w-lg'>
                     <h2 className="font-bold text-2xl">Select a frame from the list</h2>

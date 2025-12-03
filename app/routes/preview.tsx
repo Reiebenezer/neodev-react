@@ -7,6 +7,7 @@ import { isStyleBlock } from "~/lib/playground/Block";
 import isColor from "~/lib/generics/properties/color";
 import '~/preview.css';
 import { loadFont, type ProvidedFonts } from "~/lib/font-loader";
+import type { Color } from "@reiebenezer/ts-utils/color";
 
 export default function Preview() {
   // Local storage preview data
@@ -52,7 +53,15 @@ function RenderedBlock({ block }: { block: BlockData }) {
   const compiledProperties: HTMLAttributes<HTMLElement> & Record<string, any> = {};
 
   if (properties) {
-    compiledProperties.style = Object.fromEntries(Object.entries(properties.style ?? {}).map(([k, v]) => [k, isChoice(v) ? v.value : v]))
+    compiledProperties.style =
+      Object.fromEntries(
+        Object.entries(properties.style ?? {})
+          .map(([k, v]) => [
+            k,
+            isChoice(v) || isColor(v) ? v.value : v
+          ]
+          )
+      )
 
     // console.log(compiledProperties.style);
 
