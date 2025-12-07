@@ -386,13 +386,11 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
             <TabPanel header="Properties">
               <Properties />
             </TabPanel>
-            <TabPanel header="AI Insights">
-              <AiInsights />
-            </TabPanel>
             <TabPanel header="Preview Code">
               <CodePreview />
             </TabPanel>
           </TabView>
+          <AiInsights />
         </Activity>
       </div>
     </PlaygroundContext.Provider>
