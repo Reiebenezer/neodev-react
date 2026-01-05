@@ -196,7 +196,7 @@ export default function Properties() {
                         // </select>
                       )
                       : (
-                        <input step={4} type={typeof val === 'number' ? 'number' : 'text'} id={`property-${prop}`} value={val as string | number} onChange={e => updateContainingFrame('style', prop, e)} ></input>
+                        <input min={-32768} max={32767} step={4} type={typeof val === 'number' ? 'number' : 'text'} id={`property-${prop}`} value={val as string | number} onChange={e => updateContainingFrame('style', prop, e)} ></input>
                       ))
                 }
               </div>
