@@ -130,6 +130,7 @@ export default function Properties() {
       }}
       onWheel={e => e.stopPropagation()}
       ref={propertiesPanelRef}
+      data-properties
     >
       {properties?.image && (
         <>

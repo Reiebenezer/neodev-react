@@ -36,6 +36,6 @@ export default function Preview() {
   if (!context) return;
 
   return (
-    <iframe src="/preview" className="aspect-4/3" tabIndex={-1} ref={ref}></iframe>
+    <iframe id="preview" src="/preview" className="aspect-4/3" tabIndex={-1} ref={ref}></iframe>
   );
 }

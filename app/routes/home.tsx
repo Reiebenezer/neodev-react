@@ -10,11 +10,14 @@ export default function Home() {
   )
 
   return (
-    <div className="fixed inset-0 ">
-      <div className="min-h-full container mx-auto pt-64 flex flex-col items-center">
+    <div className="fixed inset-0 flex flex-col">
+      <div className="flex-1 pt-64 flex flex-col items-center">
         <h1 className="text-7xl md:text-9xl font-bold">NeoDev</h1>
         <p className="my-12">Learning Web Development, Without the Code.</p>
-        <Link data-button to="/playground">Open Playground</Link>
+        <div className="flex gap-4  ">
+          <Link data-button to="/playground">Open Playground</Link>
+          <Link data-button to="/docs" className='bg-transparent'>Docs</Link>
+        </div>
       </div>
     </div>
   );

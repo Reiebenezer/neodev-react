@@ -22,6 +22,8 @@ import CodePreview from './panels/CodePreview';
 import { useStorage } from '../hooks';
 import SVGOverlay from './SVGOverlay';
 import Tutorial from './panels/Tutorial';
+import Joyride, { type Callback } from 'react-joyride';
+import { steps } from '../tutorial/joyride-steps';
 
 export default function PlaygroundContextProvider({ children }: { children: (frames: PlaygroundContextProps['frames']) => React.ReactNode }) {
   const [frames, setFrames] = useState<FrameData[]>((JSON.parse(localStorage.getItem(FRAME_DATA) ?? "null"))?.map((f: FrameData & { position: [string, string] }) => ({ ...f, position: Vector(Unit(f.position[0]), Unit(f.position[1])) })) ?? templateFrames);
@@ -32,6 +34,9 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
 
   const [isPreviewShown, setIsPreviewShown] = useState(true);
   const [isInfoPanelShown, setIsInfoPanelShown] = useState(true);
+
+  // Tutorial
+  const [isTutorialCompleted, setIsTutorialCompleted] = useStorage<'true' | 'false'>('isTutorialCompleted', 'false');
 
   // Pan and zoom
   const [scale, setScale] = useState(parseFloat(localStorage.getItem(ZOOM_KEY) ?? '1'));
@@ -290,6 +295,13 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
 
   }, [frames, focusedFrame]);
 
+  /** Tutorial Callback (Joyride). Disables tutorial screen when completed */
+  const handleTutorialCallback: Callback = data => {
+    if (['finished', 'skipped'].includes(data.status)) {
+      setIsTutorialCompleted('true');
+    }
+  }
+
   return (
     <PlaygroundContext.Provider value={{
       frames,
@@ -360,9 +372,10 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
                 onDragEnd={handleDragEnd}
               >
                 {children(frames)}
-                <div className="fixed top-4 left-4 flex gap-2">
+                <div className="fixed top-4 left-4 flex gap-2 items-start">
                   <Link to="/" data-button>Back to Homepage</Link>
                   <button className="" onClick={resetPlayground}>Reset Playground</button>
+                  <AiInsights />
                 </div>
                 <DragOverlay style={{ scale: `${utils.instance.transformState.scale}` }} className="origin-top-left w-auto!" modifiers={[adjustToScale]} >
                   {activeBlock && <Block {...activeBlock} />}
@@ -379,20 +392,22 @@ export default function PlaygroundContextProvider({ children }: { children: (fra
           <Preview />
         </Activity>
         <Activity mode={isInfoPanelShown ? "visible" : "hidden"}>
-          <TabView className='bg-accent select-none relative' activeIndex={0} onWheel={e => e.stopPropagation()}>
-            <TabPanel header="Tutorial">
+          <TabView data-neodev-info-panel className='bg-accent select-none' activeIndex={0} onWheel={e => e.stopPropagation()}>
+            <TabPanel header="Docs" headerClassName='neodev-docs'>
               <Tutorial />
             </TabPanel>
-            <TabPanel header="Properties">
+            <TabPanel header="Properties" headerClassName='neodev-properties'>
               <Properties />
             </TabPanel>
-            <TabPanel header="Preview Code">
+            <TabPanel header="Code Preview" headerClassName='neodev-code-preview'>
               <CodePreview />
             </TabPanel>
           </TabView>
-          <AiInsights />
         </Activity>
       </div>
+      {frames && isTutorialCompleted === "false" &&
+        <Joyride continuous showProgress steps={steps} callback={handleTutorialCallback} showSkipButton={true} />
+      }
     </PlaygroundContext.Provider>
   );
 

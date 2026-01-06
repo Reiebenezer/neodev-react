@@ -1,13 +1,20 @@
 const keys: Record<string, string[]> = {};
+let lastProducedKey = '';
 
 export function uniqueKeyedString(prefix = 'key') {
-  let val = Math.random().toString().substring(2, 10);
+  let key = Math.random().toString().substring(2, 10);
 
-  while (prefix in keys && keys[prefix].includes(val)) {
-    val = Math.random().toString().substring(2, 10);
+  while (prefix in keys && keys[prefix].includes(lastProducedKey)) {
+    key = Math.random().toString().substring(2, 10);
   }
 
-  return `${prefix}${val}`;
+  lastProducedKey = key;
+
+  return `${prefix}${key}`;
+}
+
+export function getLastKeyedString(prefix = 'key') {
+  return `${prefix}${lastProducedKey}`;
 }
 
 export function cloneObject<T>(obj: T): T {
