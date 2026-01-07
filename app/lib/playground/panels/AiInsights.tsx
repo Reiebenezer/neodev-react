@@ -3,14 +3,9 @@ import { PlaygroundContext } from "../context";
 import { useStorage } from "~/lib/hooks";
 import { PREVIEW_HTML } from "~/lib/constants";
 import { Color } from "@reiebenezer/ts-utils/color";
-import { GoogleGenAI } from "@google/genai";
-// import { GEMINI_API_KEY } from "apikey";
 
 const API = "http://127.0.0.1:5000/predict"
 // const API = "https://neodev-graphsage-u1ya.onrender.com/from-html";
-
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
-// const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 export default function AiInsights() {
   const [html] = useStorage(PREVIEW_HTML)
@@ -46,24 +41,10 @@ export default function AiInsights() {
 
         if (syncedAllowNextTip() && data.predicted_label !== getDataSnapshot()[0].predicted_label) {
           console.log('updating response...')
-          const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-lite-preview-09-2025",
-            contents: `
-            CONTEXT: You are a model that gives "Did You Know?" tips to students who are trying to learn web development.
-            INPUT: a UI component
-            OUTPUT: A brief, but detailed "Did You Know?" message about this specific UI component.
+          const response = await fetch('/api/generate-insights', { method: 'POST', body: JSON.stringify({ predicted_label: data.predicted_label })})
+          setMessage(await response.text() ?? "");
 
-            When responding, you must follow this format: 
-            A <component name> is <description>, composed primarily of <elements>. It is mainly used in <application>. <Additional tips>. Limit your response to a maximum of 35 words.
-            Only respond in plaintext. Never mention the words "Do you know?" rather start with the fun fact.
-
-            The UI component you should discuss is: ${data.predicted_label}
-          `,
-          });
-
-          setMessage(response.text ?? "");
           setAllowNextTip(false);
-
           setTimeout(() => setAllowNextTip(true), 30_000);
           // console.log(response.text);
         }
