@@ -9,7 +9,7 @@ import { GoogleGenAI } from "@google/genai";
 const API = "http://127.0.0.1:5000/predict"
 // const API = "https://neodev-graphsage-u1ya.onrender.com/from-html";
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 // const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 export default function AiInsights() {
