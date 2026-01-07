@@ -4,11 +4,12 @@ import { useStorage } from "~/lib/hooks";
 import { PREVIEW_HTML } from "~/lib/constants";
 import { Color } from "@reiebenezer/ts-utils/color";
 import { GoogleGenAI } from "@google/genai";
+import { GEMINI_API_KEY } from "apikey";
 
 const API = "http://127.0.0.1:5000/predict"
 // const API = "https://neodev-graphsage-u1ya.onrender.com/from-html";
 
-const ai = new GoogleGenAI({ apiKey: "AIzaSyC-A2cPAz0sooftJa27_Wq-WlXO6t17wPg" });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.PROD ? import.meta.env.GEMINI_API_KEY : GEMINI_API_KEY });
 
 export default function AiInsights() {
   const [html] = useStorage(PREVIEW_HTML)
@@ -39,13 +40,13 @@ export default function AiInsights() {
 
     }).then(res => res.json())
       .then(async data => {
-        console.log(data);
+        // console.log(data);
         setData([data]);
 
         if (syncedAllowNextTip() && data.predicted_label !== getDataSnapshot()[0].predicted_label) {
           console.log('updating response...')
           const response = await ai.models.generateContent({
-            model: "gemini-3-flash-preview",
+            model: "gemini-2.5-flash-lite-preview-09-2025",
             contents: `
             CONTEXT: You are a model that gives "Did You Know?" tips to students who are trying to learn web development.
             INPUT: a UI component
@@ -53,6 +54,7 @@ export default function AiInsights() {
 
             When responding, you must follow this format: 
             A <component name> is <description>, composed primarily of <elements>. It is mainly used in <application>. <Additional tips>. Limit your response to a maximum of 35 words.
+            Only respond in plaintext. Never mention the words "Do you know?" rather start with the fun fact.
 
             The UI component you should discuss is: ${data.predicted_label}
           `,
@@ -62,7 +64,7 @@ export default function AiInsights() {
           setAllowNextTip(false);
 
           setTimeout(() => setAllowNextTip(true), 30_000);
-          console.log(response.text);
+          // console.log(response.text);
         }
 
       })
