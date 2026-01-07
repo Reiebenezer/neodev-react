@@ -4,12 +4,13 @@ import { useStorage } from "~/lib/hooks";
 import { PREVIEW_HTML } from "~/lib/constants";
 import { Color } from "@reiebenezer/ts-utils/color";
 import { GoogleGenAI } from "@google/genai";
-import { GEMINI_API_KEY } from "apikey";
+// import { GEMINI_API_KEY } from "apikey";
 
 const API = "http://127.0.0.1:5000/predict"
 // const API = "https://neodev-graphsage-u1ya.onrender.com/from-html";
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.PROD ? import.meta.env.GEMINI_API_KEY : GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.GEMINI_API_KEY });
+// const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 export default function AiInsights() {
   const [html] = useStorage(PREVIEW_HTML)
