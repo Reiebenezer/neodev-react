@@ -4,8 +4,10 @@ import { useStorage } from "~/lib/hooks";
 import { PREVIEW_HTML } from "~/lib/constants";
 import { Color } from "@reiebenezer/ts-utils/color";
 
-const API = "http://127.0.0.1:5000/predict"
-// const API = "https://neodev-graphsage-u1ya.onrender.com/from-html";
+// const API = "http://127.0.0.1:5000/predict"
+const API = "https://neodev-graphsage-u1ya.onrender.com/from-html";
+
+// const ai = new GoogleGenAI({ apiKey: "AIzaSyAZ2Lao8dCSAvkG0dINX-XFDkRtn4x4QUo" });
 
 export default function AiInsights() {
   const [html] = useStorage(PREVIEW_HTML)
