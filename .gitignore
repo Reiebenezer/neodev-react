@@ -7,3 +7,4 @@
 /build/
 
 apikey.ts
+.env.local
