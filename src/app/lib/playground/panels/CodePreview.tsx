@@ -1,11 +1,13 @@
 import { Html5Plain, ReactOriginal, SveltePlain } from 'devicons-react';
 import hljs from 'highlight.js';
 import hljs_svelte from "highlightjs-svelte";
-import { useRef, useState, useEffectEvent, useCallback, useEffect, useMemo, useLayoutEffect } from 'react';
+import { useRef, useState, useEffectEvent, useCallback, useEffect, useMemo, useLayoutEffect, useContext } from 'react';
 import { OUTPUT_FRAMEWORK, PREVIEW_FRAME_NAME, PREVIEW_HTML } from '~/lib/constants';
 import { useInspect, useStorage } from '~/lib/hooks';
 import jsbeautify from 'js-beautify';
 import { Color } from '@reiebenezer/ts-utils/color';
+import { ContextMenuContext } from '~/lib/generics/ContextMenu';
+import { CopyIcon } from '@phosphor-icons/react';
 
 hljs_svelte(hljs);
 const languages = ['html', 'react', 'svelte'] as const;
@@ -14,6 +16,7 @@ const transpilerUrl = "https://neodev-transpiler.onrender.com/transpile";
 // const transpilerUrl = "http://127.0.0.1:8000/transpile";
 
 export default function CodePreview() {
+  const rightClickContext = useContext(ContextMenuContext);
   const codeRef = useRef<HTMLElement>(null);
 
   const [html] = useStorage(PREVIEW_HTML);
@@ -99,12 +102,27 @@ export default function CodePreview() {
 
 
   return (
-    <pre className={`text-sm p-4`}>
-      <code className={`bg-transparent! ${lang === 'html' ? 'language-html' :
-        lang === 'react' ? 'language-jsx' :
-          lang === 'svelte' ? 'language-svelte' :
-            ''
-        }`} ref={codeRef} dangerouslySetInnerHTML={{ __html: escapeHtml(code) }}></code>
+    <pre
+      className={`text-sm p-4`}
+      onContextMenu={() => {
+        rightClickContext?.setOptions([
+          [
+            <div className='flex gap-2 items-center'><CopyIcon />Copy to Clipboard</div>,
+            () => {
+              navigator.clipboard.writeText(escapeHtml(code));
+              alert("Code copied to clipboard!");
+            }
+          ]
+        ])
+      }}
+    >
+      <code
+        className={`bg-transparent! ${lang === 'html' ? 'language-html' :
+          lang === 'react' ? 'language-jsx' :
+            lang === 'svelte' ? 'language-svelte' :
+              ''
+          }`}
+        ref={codeRef} dangerouslySetInnerHTML={{ __html: escapeHtml(code) }}></code>
       <button title={lang} className="fixed bottom-12 right-12 bg-primary p-3" onClick={() => setLang(prev => languages[(languages.indexOf(prev) + 1) % languages.length])}>{
         lang === 'html' ? <Html5Plain size={24} /> :
           lang === 'react' ? <ReactOriginal size={24} /> :

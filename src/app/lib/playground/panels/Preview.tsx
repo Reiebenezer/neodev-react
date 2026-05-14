@@ -1,5 +1,6 @@
 import { useContext, useLayoutEffect, useRef } from "react";
 import { PlaygroundContext } from "../context";
+import { ArrowSquareInIcon } from "@phosphor-icons/react";
 
 export default function Preview() {
   const context = useContext(PlaygroundContext);
@@ -36,6 +37,11 @@ export default function Preview() {
   if (!context) return;
 
   return (
-    <iframe id="preview" src="/preview" className="aspect-4/3" tabIndex={-1} ref={ref}></iframe>
+    <div className="relative aspect-4/3 overflow-x-clip rounded-lg">
+      <iframe id="preview" src="/preview" className="absolute inset-0 size-full" tabIndex={-1} ref={ref}></iframe>
+      <a data-button className="absolute bottom-4 right-4 px-3" target="_blank" href="/preview" title="Open preview in new tab">
+        <ArrowSquareInIcon size={16} weight="bold" />
+      </a>
+    </div>
   );
 }

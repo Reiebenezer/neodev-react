@@ -13,10 +13,10 @@ import { createFrameInstanceBlock } from './Block';
 
 export default function Frame(data: FrameData) {
   const context = useContext(PlaygroundContext);
-  const contextMenuContext = useContext(ContextMenuContext);
+  const rightClickContext = useContext(ContextMenuContext);
   const modalContext = useContext(ModalContext);
 
-  const ref = useRef<HTMLDivElement>(null);
+  const neodevCanvasRef = useRef<HTMLDivElement>(null);
   const { blocks, id, position } = data;
   const [pos, setPos] = useState(data.position);
 
@@ -30,10 +30,10 @@ export default function Frame(data: FrameData) {
   });
 
   useEffect(() => {
-    if (!ref.current) return;
+    if (!neodevCanvasRef.current) return;
     if (!context) return;
 
-    const instance = interact(ref.current).draggable({
+    const instance = interact(neodevCanvasRef.current).draggable({
       allowFrom: `[data-neodev-handle]`,
       enabled: context.tool !== 'hand',
       cursorChecker(action, interactable, element, interacting) {
@@ -59,26 +59,28 @@ export default function Frame(data: FrameData) {
       instance.unset();
     }
 
-  }, [ref, context?.tool, context?.scale])
+  }, [neodevCanvasRef, context?.tool, context?.scale])
 
   if (!context) return;
+
+  
 
   return (
     <>
       <div
-        ref={ref}
+        ref={neodevCanvasRef}
         data-neodev-frame={id}
         className='flex gap-1 select-none touch-none absolute'
-        style={{ transform: `translate3d(${pos.x.px()}, ${pos.y.px()}, 0)` }}
+        style={{ transform: `translate(${pos.translate.join(", ")})` }}
       >
         <div
-          className={`${isTemplateFrame(data) ? 'bg-orange-700' : context.focusedFrame === data.id ? 'bg-violet-500' : 'bg-amber-500'} px-2 text-sm font-bold [writing-mode:vertical-rl]`}
+          className={`${isTemplateFrame(data) ? 'bg-orange-700' : context.focusedFrame === data.id ? 'bg-violet-500' : 'bg-amber-500'} absolute inset-x-0 overflow-y-clip right-[calc(100%+0.3rem)] px-2 text-sm font-bold [writing-mode:vertical-rl]`}
           data-neodev-handle={id}
           title='Try dragging me around!'
           onContextMenu={(e) => {
             if (isTemplateFrame(data)) return;
 
-            contextMenuContext?.setOptions([
+            rightClickContext?.setOptions([
               [<div className='flex gap-2 items-center'><PaperclipIcon />Import to frame...</div>, () => {
                 modalContext?.open((close) => (
                   <div className='flex flex-col min-w-lg'>
@@ -165,6 +167,7 @@ export default function Frame(data: FrameData) {
       </div>
     </>
   );
+
 }
 
 export function createFrame(id: string, blocks: BlockData[], position = Vector.ZERO, label = uniqueKeyedString('Frame')): FrameData {

@@ -26,7 +26,24 @@ import Joyride, { type Callback } from 'react-joyride';
 import { steps } from '../tutorial/joyride-steps';
 
 export default function PlaygroundContextProvider({ children }: { children: (frames: PlaygroundContextProps['frames']) => React.ReactNode }) {
-  const [frames, setFrames] = useState<FrameData[]>((JSON.parse(localStorage.getItem(FRAME_DATA) ?? "null"))?.map((f: FrameData & { position: [string, string] }) => ({ ...f, position: Vector(Unit(f.position[0]), Unit(f.position[1])) })) ?? templateFrames);
+
+  /** 
+   * List of frames
+   */
+  const [frames, setFrames] = useState<FrameData[]>(() => {
+    const frameData = JSON.parse(localStorage.getItem(FRAME_DATA) ?? "null");
+
+    if (!frameData)
+      return templateFrames;
+
+    return frameData.map(
+      (f: FrameData & { position: [string, string] }) => ({
+        ...f,
+        position: Vector(Unit(f.position[0]), Unit(f.position[1]))
+      })
+    );
+  });
+  
   const [activeBlock, setActiveBlock] = useState<BlockData>();
   const [activeBlockIndex, setActiveBlockIndex] = useState(-1);
   const [currentTool, setCurrentTool] = useState<Tool>('move');
